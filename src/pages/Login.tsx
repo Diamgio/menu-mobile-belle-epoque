@@ -1,40 +1,46 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // For demo purposes, use a simple hardcoded authentication
-    // In a real app, this would connect to a backend authentication service
-    setTimeout(() => {
-      if (email === "admin@example.com" && password === "password") {
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Errore di autenticazione",
+          description: error.message,
+        });
+      } else {
         toast({
           title: "Login effettuato",
           description: "Benvenuto nel pannello di amministrazione",
         });
-        navigate("/admin/dashboard");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Errore di autenticazione",
-          description: "Email o password non corretti",
-        });
       }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Errore di autenticazione",
+        description: "Si è verificato un errore durante l'accesso",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
