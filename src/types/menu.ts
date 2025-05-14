@@ -5,7 +5,7 @@ export interface MenuItem {
   description: string;
   price: number;
   category: string;
-  image: string;
+  image?: string; // Changed from 'image: string' to 'image?: string' to make it optional
   allergens: string[];
 }
 
