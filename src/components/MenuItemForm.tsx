@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MenuItem } from "@/types/menu";
 import { categories, allergens } from "@/data/menuData";
+import ImageUploader from "./ImageUploader";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AspectRatio } from "./ui/aspect-ratio";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -38,9 +41,7 @@ const formSchema = z.object({
   }),
   category: z.string({
     required_error: "Seleziona una categoria",
-  }),
-  image: z.string().optional(),
-  allergens: z.array(z.string()).optional(),
+  })
 });
 
 interface MenuItemFormProps {
@@ -53,6 +54,7 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     item?.allergens || []
   );
+  const [imageUrl, setImageUrl] = useState<string>(item?.image || "/placeholder.svg");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,8 +63,6 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
       description: item?.description || "",
       price: item?.price || 0,
       category: item?.category || categories[0],
-      image: item?.image || "/placeholder.svg",
-      allergens: item?.allergens || [],
     },
   });
 
@@ -74,13 +74,17 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
     );
   };
 
+  const handleImageUploaded = (url: string) => {
+    setImageUrl(url);
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     onSave({
       name: values.name,
       description: values.description,
       price: values.price,
       category: values.category,
-      image: values.image || "/placeholder.svg",
+      image: imageUrl || "/placeholder.svg",
       allergens: selectedAllergens,
     });
   };
@@ -166,25 +170,32 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>URL Immagine</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="/placeholder.svg"
-                  {...field}
+        <div className="space-y-2">
+          <FormLabel>Immagine del piatto</FormLabel>
+          {imageUrl !== "/placeholder.svg" ? (
+            <div className="space-y-4">
+              <AspectRatio ratio={4 / 3} className="bg-muted rounded-md overflow-hidden">
+                <img
+                  src={imageUrl}
+                  alt="Immagine del piatto"
+                  className="w-full h-full object-cover"
                 />
-              </FormControl>
-              <FormDescription>
-                Inserisci l'URL dell'immagine del piatto
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+              </AspectRatio>
+              <ImageUploader
+                onImageUploaded={handleImageUploaded}
+                folder="dishes"
+                buttonText="Cambia immagine"
+                existingImageUrl={imageUrl}
+              />
+            </div>
+          ) : (
+            <ImageUploader
+              onImageUploaded={handleImageUploaded}
+              folder="dishes"
+              buttonText="Carica immagine"
+            />
           )}
-        />
+        </div>
 
         <div>
           <p className="mb-2 text-sm font-medium">Allergeni</p>

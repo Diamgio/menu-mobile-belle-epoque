@@ -5,7 +5,7 @@ export interface MenuItem {
   description: string;
   price: number;
   category: string;
-  image?: string; // Changed from 'image: string' to 'image?: string' to make it optional
+  image?: string;
   allergens: string[];
 }
 
@@ -18,4 +18,5 @@ export interface RestaurantInfo {
     facebook?: string;
     instagram?: string;
   };
+  logo?: string;
 }

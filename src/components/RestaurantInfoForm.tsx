@@ -3,6 +3,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RestaurantInfo } from "@/types/menu";
+import { useState } from "react";
+import ImageUploader from "./ImageUploader";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AspectRatio } from "./ui/aspect-ratio";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -32,6 +35,7 @@ const formSchema = z.object({
   }),
   facebook: z.string().url().optional().or(z.literal("")),
   instagram: z.string().url().optional().or(z.literal("")),
+  logo: z.string().optional(),
 });
 
 interface RestaurantInfoFormProps {
@@ -45,6 +49,8 @@ const RestaurantInfoForm = ({
   onSave,
   onCancel,
 }: RestaurantInfoFormProps) => {
+  const [logoUrl, setLogoUrl] = useState<string>(info.logo || "");
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,6 +60,7 @@ const RestaurantInfoForm = ({
       address: info.address,
       facebook: info.socialLinks.facebook || "",
       instagram: info.socialLinks.instagram || "",
+      logo: info.logo || "",
     },
   });
 
@@ -67,7 +74,13 @@ const RestaurantInfoForm = ({
         facebook: values.facebook || undefined,
         instagram: values.instagram || undefined,
       },
+      logo: logoUrl,
     });
+  };
+
+  const handleLogoUploaded = (url: string) => {
+    setLogoUrl(url);
+    form.setValue("logo", url);
   };
 
   return (
@@ -86,6 +99,33 @@ const RestaurantInfoForm = ({
             </FormItem>
           )}
         />
+
+        <div className="space-y-2">
+          <FormLabel>Logo del ristorante</FormLabel>
+          {logoUrl ? (
+            <div className="space-y-4">
+              <AspectRatio ratio={1 / 1} className="bg-muted rounded-md overflow-hidden">
+                <img
+                  src={logoUrl}
+                  alt="Logo del ristorante"
+                  className="w-full h-full object-contain"
+                />
+              </AspectRatio>
+              <ImageUploader
+                onImageUploaded={handleLogoUploaded}
+                folder="logos"
+                buttonText="Cambia logo"
+                existingImageUrl={logoUrl}
+              />
+            </div>
+          ) : (
+            <ImageUploader
+              onImageUploaded={handleLogoUploaded}
+              folder="logos"
+              buttonText="Carica logo"
+            />
+          )}
+        </div>
 
         <FormField
           control={form.control}
