@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -77,7 +76,11 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     onSave({
-      ...values,
+      name: values.name,
+      description: values.description,
+      price: values.price,
+      category: values.category,
+      image: values.image || "/placeholder.svg",
       allergens: selectedAllergens,
     });
   };
