@@ -1,4 +1,5 @@
 
+import React from "react";  // Aggiunto import esplicito di React
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,9 +13,11 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
+// Inizializzazione del QueryClient all'esterno del componente
 const queryClient = new QueryClient();
 
-const App = () => (
+// Definito esplicitamente come componente React
+const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
