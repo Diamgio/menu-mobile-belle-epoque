@@ -10,6 +10,7 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import ZoomableImage from "./ZoomableImage";
 
 interface MenuItemProps {
   item: MenuItemType;
@@ -55,10 +56,12 @@ const MenuItem = ({ item, excludedAllergens }: MenuItemProps) => {
           )}
         </div>
         <div className="col-span-1 flex items-center justify-center">
-          <img
+          <ZoomableImage
             src={item.image}
             alt={item.name}
-            className="aspect-square h-24 w-24 rounded-md object-cover"
+            className="rounded-md"
+            containerClassName="h-24 w-24"
+            aspectRatio={1}
           />
         </div>
       </div>

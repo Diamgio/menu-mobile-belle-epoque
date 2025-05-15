@@ -7,6 +7,8 @@ import CategoryFilter from "@/components/CategoryFilter";
 import AllergenFilter from "@/components/AllergenFilter";
 import MenuItem from "@/components/MenuItem";
 import RestaurantInfo from "@/components/RestaurantInfo";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const MenuPage = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -76,7 +78,7 @@ const MenuPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24 relative">
       <div className="sticky top-0 z-30 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">{restaurantInfo.name}</h1>
@@ -111,6 +113,19 @@ const MenuPage = () => {
             <p className="text-gray-500">Nessun piatto trovato</p>
           </div>
         )}
+      </div>
+      
+      {/* Admin Quick Link */}
+      <div className="fixed bottom-4 right-4">
+        <Link to="/admin">
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            className="opacity-60 hover:opacity-100 shadow-md"
+          >
+            Admin
+          </Button>
+        </Link>
       </div>
     </div>
   );

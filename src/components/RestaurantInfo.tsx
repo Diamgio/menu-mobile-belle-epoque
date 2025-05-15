@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
-import { AspectRatio } from "./ui/aspect-ratio";
+import ZoomableImage from "./ZoomableImage";
 
 interface RestaurantInfoProps {
   info: RestaurantInfoType;
@@ -30,13 +30,12 @@ const RestaurantInfo = ({ info }: RestaurantInfoProps) => {
         <DrawerHeader className="text-center">
           {info.logo && (
             <div className="mb-4 mx-auto max-w-[200px]">
-              <AspectRatio ratio={1} className="overflow-hidden rounded-md">
-                <img 
-                  src={info.logo} 
-                  alt={info.name}
-                  className="w-full h-full object-contain"
-                />
-              </AspectRatio>
+              <ZoomableImage
+                src={info.logo}
+                alt={info.name}
+                containerClassName="w-full h-full"
+                aspectRatio={1}
+              />
             </div>
           )}
           <DrawerTitle>{info.name}</DrawerTitle>
