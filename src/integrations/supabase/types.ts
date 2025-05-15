@@ -9,7 +9,140 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      allergens: {
+        Row: {
+          icon: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          icon?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          icon?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          id: number
+          name: string
+          order_index: number | null
+        }
+        Insert: {
+          id?: number
+          name: string
+          order_index?: number | null
+        }
+        Update: {
+          id?: number
+          name?: string
+          order_index?: number | null
+        }
+        Relationships: []
+      }
+      dish_allergens: {
+        Row: {
+          allergen_id: number
+          dish_id: number
+        }
+        Insert: {
+          allergen_id: number
+          dish_id: number
+        }
+        Update: {
+          allergen_id?: number
+          dish_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_allergens_allergen_id_fkey"
+            columns: ["allergen_id"]
+            isOneToOne: false
+            referencedRelation: "allergens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dish_allergens_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dishes: {
+        Row: {
+          category_id: number | null
+          description: string | null
+          id: number
+          image_url: string | null
+          name: string
+          price: number | null
+        }
+        Insert: {
+          category_id?: number | null
+          description?: string | null
+          id?: number
+          image_url?: string | null
+          name: string
+          price?: number | null
+        }
+        Update: {
+          category_id?: number | null
+          description?: string | null
+          id?: number
+          image_url?: string | null
+          name?: string
+          price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dishes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settings: {
+        Row: {
+          address: string | null
+          facebook_url: string | null
+          id: number
+          instagram_url: string | null
+          opening_hours: Json | null
+          other_social: string | null
+          phone: string | null
+          restaurant_name: string | null
+        }
+        Insert: {
+          address?: string | null
+          facebook_url?: string | null
+          id?: number
+          instagram_url?: string | null
+          opening_hours?: Json | null
+          other_social?: string | null
+          phone?: string | null
+          restaurant_name?: string | null
+        }
+        Update: {
+          address?: string | null
+          facebook_url?: string | null
+          id?: number
+          instagram_url?: string | null
+          opening_hours?: Json | null
+          other_social?: string | null
+          phone?: string | null
+          restaurant_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

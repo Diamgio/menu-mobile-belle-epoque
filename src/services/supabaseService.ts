@@ -78,7 +78,7 @@ export const categoriesService = {
       .limit(1);
     
     const nextOrderIndex = existingCategories && existingCategories.length > 0 
-      ? (existingCategories[0].order_index || 0) + 1 
+      ? (existingCategories[0]?.order_index || 0) + 1 
       : 0;
     
     const { data, error } = await supabase
@@ -90,6 +90,10 @@ export const categoriesService = {
     if (error) {
       console.error('Error creating category:', error);
       throw error;
+    }
+    
+    if (!data) {
+      throw new Error('No data returned when creating category');
     }
     
     return data;
@@ -142,6 +146,10 @@ export const allergensService = {
       throw error;
     }
     
+    if (!data) {
+      throw new Error('No data returned when creating allergen');
+    }
+    
     return data;
   }
 };
@@ -173,6 +181,10 @@ export const dishesService = {
       throw error;
     }
     
+    if (!data) {
+      throw new Error('No data returned when creating dish');
+    }
+    
     return data;
   },
   
@@ -187,6 +199,10 @@ export const dishesService = {
     if (error) {
       console.error('Error updating dish:', error);
       throw error;
+    }
+    
+    if (!data) {
+      throw new Error('No data returned when updating dish');
     }
     
     return data;
@@ -220,7 +236,7 @@ export const dishesService = {
       throw error;
     }
     
-    return data.map(item => item.allergens.name);
+    return data.map(item => item.allergens?.name || '').filter(Boolean);
   },
   
   async updateDishAllergens(dishId: number, allergenIds: number[]): Promise<void> {
@@ -293,6 +309,10 @@ export const settingsService = {
         throw error;
       }
       
+      if (!data) {
+        throw new Error('No data returned when updating settings');
+      }
+      
       return data;
     } else {
       // Create new
@@ -305,6 +325,10 @@ export const settingsService = {
       if (error) {
         console.error('Error creating settings:', error);
         throw error;
+      }
+      
+      if (!data) {
+        throw new Error('No data returned when creating settings');
       }
       
       return data;

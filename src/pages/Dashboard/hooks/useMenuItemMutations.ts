@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MenuItem as MenuItemType } from "@/types/menu";
 import { dishesService, transformMenuItemToDbDish } from "@/services/supabaseService";
+import { toast } from "sonner";
 
 export const useMenuItemMutations = () => {
   const queryClient = useQueryClient();
@@ -16,6 +17,10 @@ export const useMenuItemMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuData'] });
+      toast.success("Piatto aggiunto con successo");
+    },
+    onError: (error: Error) => {
+      toast.error(`Errore nell'aggiunta del piatto: ${error.message}`);
     }
   });
 
@@ -29,6 +34,10 @@ export const useMenuItemMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuData'] });
+      toast.success("Piatto aggiornato con successo");
+    },
+    onError: (error: Error) => {
+      toast.error(`Errore nell'aggiornamento del piatto: ${error.message}`);
     }
   });
 
@@ -39,6 +48,10 @@ export const useMenuItemMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuData'] });
+      toast.success("Piatto eliminato con successo");
+    },
+    onError: (error: Error) => {
+      toast.error(`Errore nell'eliminazione del piatto: ${error.message}`);
     }
   });
 
