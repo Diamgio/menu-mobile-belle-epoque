@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
@@ -62,7 +63,7 @@ const MenuPage = () => {
             src={restaurantInfo.logo}
             alt={restaurantInfo.name}
             aspectRatio={1}
-            containerClassName="no-animation"
+            containerClassName="animate-pulse"
           />
         </div>
         <div className="text-center">
