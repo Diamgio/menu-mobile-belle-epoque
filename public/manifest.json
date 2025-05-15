@@ -1,7 +1,7 @@
 
 {
-  "name": "Menu Mobile Magica",
-  "short_name": "MenuMagica",
+  "name": "Belle Èpoque - La Brasserie dal 1989 - Menu Mobile",
+  "short_name": "BelleÈpoque",
   "description": "Applicazione per la gestione dei menu del ristorante",
   "start_url": "/",
   "display": "standalone",
