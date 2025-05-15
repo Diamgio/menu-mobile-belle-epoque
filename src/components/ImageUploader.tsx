@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Loader2, ImagePlus, Upload } from "lucide-react";
+import { Loader2, ImagePlus } from "lucide-react";
 
 interface ImageUploaderProps {
   onImageUploaded: (url: string) => void;
@@ -22,7 +22,7 @@ const ImageUploader = ({
 }: ImageUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const bucketName = "restaurant-images";
+  const bucketName = "belleepoque";
 
   const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -59,7 +59,7 @@ const ImageUploader = ({
       // Se c'è già un'immagine esistente, proviamo a rimuoverla
       if (existingImageUrl) {
         const existingPath = existingImageUrl.replace(
-          `https://otmrqmddybakvpzcjgol.supabase.co/storage/v1/object/public/${bucketName}/`,
+          `https://bhgsvlplsxnpqqbxsxzq.supabase.co/storage/v1/object/public/${bucketName}/`,
           ""
         );
         
