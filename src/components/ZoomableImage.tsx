@@ -27,7 +27,14 @@ const ZoomableImage = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageType, setImageType] = useState<string | null>(null);
-  const { openGallery } = useGallery();
+  
+  // Try to use the gallery context, but don't error if it's not available
+  let galleryContext;
+  try {
+    galleryContext = useGallery();
+  } catch (error) {
+    // Context not available, will handle this case below
+  }
   
   // Convert src to array if it's a string for unified handling
   const imageSources = Array.isArray(src) ? src : [src];
@@ -55,10 +62,13 @@ const ZoomableImage = ({
   };
 
   const handleImageClick = () => {
-    // The MenuPage will inject the allItems array and this item's index using context
-    // We'll pass this information to the gallery when it's opened
-    const menuItems = window.__menuContext?.items || [];
-    openGallery(menuItems, itemIndex);
+    // Only try to open the gallery if the context is available
+    if (galleryContext) {
+      // The MenuPage will inject the allItems array and this item's index using context
+      // We'll pass this information to the gallery when it's opened
+      const menuItems = window.__menuContext?.items || [];
+      galleryContext.openGallery(menuItems, itemIndex);
+    }
   };
 
   // Show fallback for missing images
@@ -86,8 +96,8 @@ const ZoomableImage = ({
 
   return (
     <div 
-      className={cn("relative group cursor-zoom-in", containerClassName)}
-      onClick={handleImageClick}
+      className={cn("relative group", galleryContext ? "cursor-zoom-in" : "", containerClassName)}
+      onClick={galleryContext ? handleImageClick : undefined}
     >
       {aspectRatio ? (
         <AspectRatio ratio={aspectRatio} className="overflow-hidden">
@@ -122,9 +132,11 @@ const ZoomableImage = ({
           {imageFallback}
         </>
       )}
-      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
-        <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg" />
-      </div>
+      {galleryContext && (
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
+          <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg" />
+        </div>
+      )}
     </div>
   );
 };
