@@ -16,11 +16,12 @@ const DishImageUploader = ({ imageUrl, onImageUploaded }: DishImageUploaderProps
       <FormLabel>Immagine del piatto</FormLabel>
       {!isPlaceholder ? (
         <div className="space-y-4">
-          <AspectRatio ratio={4 / 3} className="bg-muted rounded-md overflow-hidden">
+          <AspectRatio ratio={4 / 3} className="bg-muted rounded-md overflow-hidden shadow-sm">
             <img
               src={imageUrl}
               alt="Immagine del piatto"
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           </AspectRatio>
           <ImageUploader
@@ -31,11 +32,13 @@ const DishImageUploader = ({ imageUrl, onImageUploaded }: DishImageUploaderProps
           />
         </div>
       ) : (
-        <ImageUploader
-          onImageUploaded={onImageUploaded}
-          folder="dishes"
-          buttonText="Carica immagine"
-        />
+        <div className="touch-manipulation">
+          <ImageUploader
+            onImageUploaded={onImageUploaded}
+            folder="dishes"
+            buttonText="Carica immagine"
+          />
+        </div>
       )}
     </div>
   );
