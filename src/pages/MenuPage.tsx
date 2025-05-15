@@ -7,9 +7,6 @@ import CategoryFilter from "@/components/CategoryFilter";
 import AllergenFilter from "@/components/AllergenFilter";
 import MenuItem from "@/components/MenuItem";
 import RestaurantInfo from "@/components/RestaurantInfo";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 
 const MenuPage = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -81,25 +78,25 @@ const MenuPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative">
       <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center">
           <h1 className="text-xl font-bold dark:text-white">{restaurantInfo.name}</h1>
-          <div className="flex items-center space-x-2">
-            <ThemeToggle />
-            <AllergenFilter
-              allergens={allergens}
-              excludedAllergens={excludedAllergens}
-              onAllergenChange={handleAllergenChange}
-            />
-            <RestaurantInfo info={restaurantInfo} />
-          </div>
         </div>
       </div>
 
-      <CategoryFilter
-        categories={categories}
-        activeCategory={activeCategory}
-        onSelectCategory={setActiveCategory}
-      />
+      <div className="sticky top-[3.25rem] z-20 bg-white dark:bg-gray-800 shadow-sm px-2">
+        <div className="flex items-center justify-between py-2">
+          <CategoryFilter
+            categories={categories}
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+          />
+          <AllergenFilter
+            allergens={allergens}
+            excludedAllergens={excludedAllergens}
+            onAllergenChange={handleAllergenChange}
+          />
+        </div>
+      </div>
 
       <div className="p-4 space-y-4">
         {filteredItems.map((item) => (
@@ -117,18 +114,8 @@ const MenuPage = () => {
         )}
       </div>
       
-      {/* Admin Quick Link */}
-      <div className="fixed bottom-4 right-4">
-        <Link to="/admin">
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            className="opacity-60 hover:opacity-100 shadow-md"
-          >
-            Admin
-          </Button>
-        </Link>
-      </div>
+      {/* Floating Info Button */}
+      <RestaurantInfo info={restaurantInfo} floatingButton={true} />
     </div>
   );
 };
