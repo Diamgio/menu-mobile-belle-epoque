@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface CategoryFilterProps {
   categories: string[];
@@ -13,6 +13,19 @@ const CategoryFilter = ({
   activeCategory,
   onSelectCategory,
 }: CategoryFilterProps) => {
+  // State for horizontal scrolling control
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  // Scroll to active category when it changes
+  useEffect(() => {
+    if (activeCategory) {
+      const activeElement = document.getElementById(`category-${activeCategory}`);
+      if (activeElement) {
+        activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [activeCategory, categories]);
+
   return (
     <div className="overflow-x-auto scrollbar-hide sticky top-0 z-20 bg-white dark:bg-gray-800 pb-2 shadow-sm">
       <div className="flex space-x-2 px-4 py-3">
@@ -29,6 +42,7 @@ const CategoryFilter = ({
         </button>
         {categories.map((category) => (
           <button
+            id={`category-${category}`}
             key={category}
             className={cn(
               "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",

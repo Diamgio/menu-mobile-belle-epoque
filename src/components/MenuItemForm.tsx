@@ -1,10 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MenuItem } from "@/types/menu";
 import ImageUploader from "./ImageUploader";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -58,11 +61,19 @@ const MenuItemForm = ({
   categories = [], 
   allergens = [] 
 }: MenuItemFormProps) => {
+  const queryClient = useQueryClient();
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     item?.allergens || []
   );
   const [imageUrl, setImageUrl] = useState<string>(item?.image || "/placeholder.svg");
   const [newCategory, setNewCategory] = useState<string>("");
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState<boolean>(false);
+  const [localCategories, setLocalCategories] = useState<string[]>(categories);
+
+  // Update local categories when props change
+  useEffect(() => {
+    setLocalCategories(categories);
+  }, [categories]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -88,7 +99,7 @@ const MenuItemForm = ({
 
   const handleCategoryChange = (value: string) => {
     if (value === "new") {
-      // Show input for new category
+      setIsAddingNewCategory(true);
       return;
     }
     form.setValue("category", value);
@@ -96,11 +107,34 @@ const MenuItemForm = ({
 
   const handleAddNewCategory = () => {
     if (newCategory.trim() === "") return;
+    
+    // Check if category already exists
+    if (localCategories.includes(newCategory.trim())) {
+      toast.error("Questa categoria esiste già");
+      return;
+    }
+    
+    // Add to local categories immediately
+    const updatedCategories = [...localCategories, newCategory.trim()];
+    setLocalCategories(updatedCategories);
+    
+    // Set the form value
     form.setValue("category", newCategory.trim());
+    
+    // Reset the state
     setNewCategory("");
+    setIsAddingNewCategory(false);
+    
+    // Show success toast
+    toast.success(`Categoria "${newCategory.trim()}" aggiunta`);
+    
+    // The category will be permanently added when the form is submitted
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    // Invalidate queries to ensure fresh data on the next fetch
+    queryClient.invalidateQueries({ queryKey: ['menuData'] });
+    
     onSave({
       name: values.name,
       description: values.description,
@@ -114,7 +148,7 @@ const MenuItemForm = ({
   // Get all categories including user-entered categories
   const allCategories = [...new Set([
     ...(item?.category ? [item.category] : []), 
-    ...categories
+    ...localCategories
   ])];
 
   return (
@@ -176,53 +210,69 @@ const MenuItemForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Categoria</FormLabel>
-              {allCategories.length > 0 ? (
-                <Select
-                  onValueChange={handleCategoryChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona una categoria" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {allCategories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+              {!isAddingNewCategory ? (
+                <div className="space-y-2">
+                  <Select
+                    onValueChange={handleCategoryChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona una categoria" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {allCategories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="new" className="text-primary font-medium">
+                        + Aggiungi nuova categoria
                       </SelectItem>
-                    ))}
-                    <SelectItem value="new">+ Aggiungi nuova categoria</SelectItem>
-                  </SelectContent>
-                </Select>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Seleziona una categoria esistente o creane una nuova
+                  </FormDescription>
+                </div>
               ) : (
-                <div className="flex gap-2">
-                  <FormControl>
-                    <Input
-                      placeholder="Nuova categoria"
-                      value={field.value}
-                      onChange={(e) => form.setValue("category", e.target.value)}
-                    />
-                  </FormControl>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input
+                        placeholder="Nome della nuova categoria"
+                        value={newCategory}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        className="flex-1"
+                        autoFocus
+                      />
+                    </FormControl>
+                    <Button 
+                      type="button" 
+                      onClick={handleAddNewCategory}
+                      disabled={!newCategory.trim()}
+                    >
+                      <Plus className="mr-1" size={16} />
+                      Aggiungi
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsAddingNewCategory(false)}
+                    >
+                      Annulla
+                    </Button>
+                  </div>
+                  <FormDescription>
+                    Inserisci il nome della nuova categoria. Verrà aggiunta al salvataggio del piatto.
+                  </FormDescription>
                 </div>
               )}
               <FormMessage />
             </FormItem>
           )}
         />
-
-        {form.watch("category") === "new" && (
-          <div className="flex gap-2">
-            <Input
-              placeholder="Nome della nuova categoria"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-            />
-            <Button type="button" onClick={handleAddNewCategory}>
-              Aggiungi
-            </Button>
-          </div>
-        )}
 
         <div className="space-y-2">
           <FormLabel>Immagine del piatto</FormLabel>
