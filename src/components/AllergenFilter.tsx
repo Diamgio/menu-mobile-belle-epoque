@@ -16,21 +16,32 @@ interface AllergenFilterProps {
   allergens: string[];
   excludedAllergens: string[];
   onAllergenChange: (allergen: string) => void;
+  isFloating?: boolean;
 }
 
 const AllergenFilter = ({
   allergens,
   excludedAllergens,
-  onAllergenChange
+  onAllergenChange,
+  isFloating = false
 }: AllergenFilterProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button 
+          variant={isFloating ? "default" : "outline"} 
+          size={isFloating ? "icon" : "sm"}
+          className={`${isFloating ? "rounded-full shadow-lg h-12 w-12 md:h-auto md:w-auto md:rounded-md md:px-4" : "gap-2"}`}
+        >
           <Filter size={16} />
-          Filtro Allergeni
-          {excludedAllergens.length > 0 && (
+          {!isFloating && "Filtro Allergeni"}
+          {!isFloating && excludedAllergens.length > 0 && (
             <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+              {excludedAllergens.length}
+            </span>
+          )}
+          {isFloating && excludedAllergens.length > 0 && (
+            <span className="absolute -top-2 -right-2 rounded-full bg-red-500 w-5 h-5 flex items-center justify-center text-xs text-white">
               {excludedAllergens.length}
             </span>
           )}

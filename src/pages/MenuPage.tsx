@@ -90,11 +90,6 @@ const MenuPage = () => {
             activeCategory={activeCategory}
             onSelectCategory={setActiveCategory}
           />
-          <AllergenFilter
-            allergens={allergens}
-            excludedAllergens={excludedAllergens}
-            onAllergenChange={handleAllergenChange}
-          />
         </div>
       </div>
 
@@ -114,7 +109,17 @@ const MenuPage = () => {
         )}
       </div>
       
-      {/* Floating Info Button */}
+      {/* Floating Allergen Filter Button (left side) */}
+      <div className="fixed bottom-4 left-4 z-40">
+        <AllergenFilter
+          allergens={allergens}
+          excludedAllergens={excludedAllergens}
+          onAllergenChange={handleAllergenChange}
+          isFloating={true}
+        />
+      </div>
+      
+      {/* Floating Info Button (right side) */}
       <RestaurantInfo info={restaurantInfo} floatingButton={true} />
     </div>
   );
