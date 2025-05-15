@@ -116,6 +116,7 @@ export type Database = {
           facebook_url: string | null
           id: number
           instagram_url: string | null
+          logo_url: string | null
           opening_hours: Json | null
           other_social: string | null
           phone: string | null
@@ -126,6 +127,7 @@ export type Database = {
           facebook_url?: string | null
           id?: number
           instagram_url?: string | null
+          logo_url?: string | null
           opening_hours?: Json | null
           other_social?: string | null
           phone?: string | null
@@ -136,6 +138,7 @@ export type Database = {
           facebook_url?: string | null
           id?: number
           instagram_url?: string | null
+          logo_url?: string | null
           opening_hours?: Json | null
           other_social?: string | null
           phone?: string | null

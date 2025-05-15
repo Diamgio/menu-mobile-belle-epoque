@@ -33,6 +33,7 @@ export interface DbSettings {
   facebook_url: string | null;
   instagram_url: string | null;
   other_social: string | null;
+  logo_url: string | null;
 }
 
 // Categories service
@@ -405,7 +406,8 @@ export async function transformDbSettingsToRestaurantInfo(dbSettings: DbSettings
       openingHours: "Contattaci per gli orari",
       phone: "",
       address: "",
-      socialLinks: {}
+      socialLinks: {},
+      logo: undefined
     };
   }
   
@@ -421,7 +423,8 @@ export async function transformDbSettingsToRestaurantInfo(dbSettings: DbSettings
     socialLinks: {
       facebook: dbSettings.facebook_url || undefined,
       instagram: dbSettings.instagram_url || undefined
-    }
+    },
+    logo: dbSettings.logo_url || undefined
   };
 }
 
@@ -433,7 +436,8 @@ export async function transformRestaurantInfoToDbSettings(info: RestaurantInfo):
     opening_hours: info.openingHours,
     facebook_url: info.socialLinks.facebook || null,
     instagram_url: info.socialLinks.instagram || null,
-    other_social: null
+    other_social: null,
+    logo_url: info.logo || null
   };
 }
 

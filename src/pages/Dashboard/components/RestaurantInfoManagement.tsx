@@ -65,6 +65,18 @@ const RestaurantInfoManagement = ({ restaurantInfo }: RestaurantInfoManagementPr
             <div>
               <h3 className="font-semibold">Dettagli Ristorante</h3>
               <dl className="mt-2 space-y-2">
+                {restaurantInfo.logo && (
+                  <div>
+                    <dt className="text-xs text-gray-500">Logo</dt>
+                    <dd className="w-16 h-16">
+                      <img 
+                        src={restaurantInfo.logo} 
+                        alt="Logo ristorante" 
+                        className="w-full h-full object-contain"
+                      />
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt className="text-xs text-gray-500">Nome</dt>
                   <dd>{restaurantInfo.name}</dd>
