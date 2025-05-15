@@ -15,9 +15,10 @@ import ZoomableImage from "./ZoomableImage";
 interface MenuItemProps {
   item: MenuItemType;
   excludedAllergens: string[];
+  itemIndex?: number; // Index of this item in the menu array
 }
 
-const MenuItem = ({ item, excludedAllergens }: MenuItemProps) => {
+const MenuItem = ({ item, excludedAllergens, itemIndex = 0 }: MenuItemProps) => {
   const hasExcludedAllergen = item.allergens.some(allergen => 
     excludedAllergens.includes(allergen)
   );
@@ -65,6 +66,7 @@ const MenuItem = ({ item, excludedAllergens }: MenuItemProps) => {
             className="rounded-md"
             containerClassName="h-24 w-24"
             aspectRatio={1}
+            itemIndex={itemIndex}
           />
         </div>
       </div>
