@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
@@ -7,6 +6,7 @@ import CategoryFilter from "@/components/CategoryFilter";
 import AllergenFilter from "@/components/AllergenFilter";
 import MenuItem from "@/components/MenuItem";
 import RestaurantInfo from "@/components/RestaurantInfo";
+import ZoomableImage from "@/components/ZoomableImage";
 
 const MenuPage = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -55,7 +55,17 @@ const MenuPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+        {restaurantInfo.logo && (
+          <div className="mb-8 w-32 h-32 relative">
+            <ZoomableImage
+              src={restaurantInfo.logo}
+              alt={restaurantInfo.name}
+              aspectRatio={1}
+              containerClassName="animate-pulse"
+            />
+          </div>
+        )}
         <div className="text-center">
           <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
           <p className="text-gray-500 dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
