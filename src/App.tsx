@@ -14,8 +14,26 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
-// Inizializzazione del QueryClient all'esterno del componente
-const queryClient = new QueryClient();
+// Configurazione del QueryClient con un ritardo minimo di 1500ms
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minuti
+      gcTime: 1000 * 60 * 10, // 10 minuti
+      retry: 1,
+      // Aggiungiamo un ritardo minimo per il precaricamento
+      placeholderData: (previousData) => {
+        // Ritardo artificiale di 1500ms prima di mostrare i dati
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(previousData);
+          }, 1500);
+        });
+      },
+    },
+  },
+});
 
 // Definito esplicitamente come componente React
 const App: React.FC = () => (

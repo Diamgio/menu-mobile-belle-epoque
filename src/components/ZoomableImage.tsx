@@ -65,13 +65,18 @@ const ZoomableImage = ({
   // Enhanced placeholder detection
   const isPlaceholder = src.includes('placeholder') || src === '/placeholder.svg';
   
+  // Don't use animation for placeholders or when the no-animation class is present
+  const shouldAnimate = !isPlaceholder && !containerClassName?.includes('no-animation');
+  
   const imageFallback = hasError ? (
     <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
       <ImageOff className="text-gray-400 w-8 h-8" />
       <span className="text-gray-400 ml-2">Immagine non disponibile</span>
     </div>
-  ) : !isLoaded ? (
+  ) : !isLoaded && shouldAnimate ? (
     <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+  ) : !isLoaded ? (
+    <div className="absolute inset-0 bg-gray-100" />
   ) : null;
 
   return (
