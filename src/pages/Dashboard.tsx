@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
-import { menuItems as initialMenuItems, restaurantInfo as initialRestaurantInfo } from "@/data/menuData";
 import MenuItemForm from "@/components/MenuItemForm";
 import RestaurantInfoForm from "@/components/RestaurantInfoForm";
+import { loadMenuData, dishesService, settingsService, transformMenuItemToDbDish, transformRestaurantInfoToDbSettings } from "@/services/supabaseService";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -31,17 +32,78 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Plus, MoreVertical, PenSquare, Trash, LogOut, Eye } from "lucide-react";
-import { v4 as uuidv4 } from 'uuid';
 
 const Dashboard = () => {
-  const [menuItems, setMenuItems] = useState<MenuItemType[]>(initialMenuItems);
-  const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfoType>(initialRestaurantInfo);
   const [editingItem, setEditingItem] = useState<MenuItemType | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Query for menu data
+  const { 
+    data, 
+    isLoading, 
+    error 
+  } = useQuery({
+    queryKey: ['menuData'],
+    queryFn: loadMenuData
+  });
+
+  const menuItems = data?.menuItems || [];
+  const restaurantInfo = data?.restaurantInfo || {
+    name: "Caricamento...",
+    openingHours: "",
+    phone: "",
+    address: "",
+    socialLinks: {}
+  };
+
+  // Mutations
+  const addItemMutation = useMutation({
+    mutationFn: async (item: Omit<MenuItemType, "id">) => {
+      const { dish, allergenIds } = await transformMenuItemToDbDish(item);
+      const newDish = await dishesService.createDish(dish);
+      await dishesService.updateDishAllergens(newDish.id, allergenIds);
+      return newDish;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menuData'] });
+    }
+  });
+
+  const updateItemMutation = useMutation({
+    mutationFn: async (params: { id: string; item: Omit<MenuItemType, "id"> }) => {
+      const { dish, allergenIds } = await transformMenuItemToDbDish(params.item, params.id);
+      const updatedDish = await dishesService.updateDish(parseInt(params.id, 10), dish);
+      await dishesService.updateDishAllergens(updatedDish.id, allergenIds);
+      return updatedDish;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menuData'] });
+    }
+  });
+
+  const deleteItemMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await dishesService.deleteDish(parseInt(id, 10));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menuData'] });
+    }
+  });
+
+  const updateInfoMutation = useMutation({
+    mutationFn: async (info: RestaurantInfoType) => {
+      const dbSettings = await transformRestaurantInfoToDbSettings(info);
+      return await settingsService.saveSettings(dbSettings);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menuData'] });
+    }
+  });
 
   const handleLogout = () => {
     toast({
@@ -56,33 +118,43 @@ const Dashboard = () => {
   };
 
   const handleAddItem = (item: Omit<MenuItemType, "id">) => {
-    const newItem = {
-      ...item,
-      id: uuidv4(),
-    };
-    setMenuItems([...menuItems, newItem]);
-    setIsAddDialogOpen(false);
-    toast({
-      title: "Piatto aggiunto",
-      description: `"${item.name}" è stato aggiunto al menu`,
+    addItemMutation.mutate(item, {
+      onSuccess: () => {
+        setIsAddDialogOpen(false);
+        toast({
+          title: "Piatto aggiunto",
+          description: `"${item.name}" è stato aggiunto al menu`,
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Errore",
+          description: `Non è stato possibile aggiungere "${item.name}": ${error.message}`,
+          variant: "destructive"
+        });
+      }
     });
   };
 
   const handleEditItem = (item: Omit<MenuItemType, "id">) => {
     if (!editingItem) return;
 
-    setMenuItems(
-      menuItems.map((menuItem) =>
-        menuItem.id === editingItem.id
-          ? { ...item, id: editingItem.id }
-          : menuItem
-      )
-    );
-    setIsEditDialogOpen(false);
-    setEditingItem(null);
-    toast({
-      title: "Piatto aggiornato",
-      description: `"${item.name}" è stato aggiornato`,
+    updateItemMutation.mutate({ id: editingItem.id, item }, {
+      onSuccess: () => {
+        setIsEditDialogOpen(false);
+        setEditingItem(null);
+        toast({
+          title: "Piatto aggiornato",
+          description: `"${item.name}" è stato aggiornato`,
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Errore",
+          description: `Non è stato possibile aggiornare "${item.name}": ${error.message}`,
+          variant: "destructive"
+        });
+      }
     });
   };
 
@@ -90,22 +162,69 @@ const Dashboard = () => {
     const itemToDelete = menuItems.find((item) => item.id === id);
     if (!itemToDelete) return;
 
-    setMenuItems(menuItems.filter((item) => item.id !== id));
-    toast({
-      title: "Piatto eliminato",
-      description: `"${itemToDelete.name}" è stato rimosso dal menu`,
-      variant: "destructive",
+    deleteItemMutation.mutate(id, {
+      onSuccess: () => {
+        toast({
+          title: "Piatto eliminato",
+          description: `"${itemToDelete.name}" è stato rimosso dal menu`,
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Errore",
+          description: `Non è stato possibile eliminare "${itemToDelete.name}": ${error.message}`,
+          variant: "destructive"
+        });
+      }
     });
   };
 
   const handleUpdateInfo = (info: RestaurantInfoType) => {
-    setRestaurantInfo(info);
-    setIsInfoDialogOpen(false);
-    toast({
-      title: "Informazioni aggiornate",
-      description: "Le informazioni del ristorante sono state aggiornate",
+    updateInfoMutation.mutate(info, {
+      onSuccess: () => {
+        setIsInfoDialogOpen(false);
+        toast({
+          title: "Informazioni aggiornate",
+          description: "Le informazioni del ristorante sono state aggiornate",
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Errore",
+          description: `Non è stato possibile aggiornare le informazioni: ${error.message}`,
+          variant: "destructive"
+        });
+      }
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mb-4 text-3xl font-bold">Caricamento...</div>
+          <p className="text-gray-500">Stiamo caricando i dati del ristorante.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
+          <p className="text-gray-500">Si è verificato un errore durante il caricamento dei dati.</p>
+          <Button 
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['menuData'] })}
+            className="mt-4"
+          >
+            Riprova
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
@@ -153,7 +272,7 @@ const Dashboard = () => {
                 </div>
                 <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="gap-2">
+                    <Button className="gap-2" disabled={addItemMutation.isPending}>
                       <Plus size={16} />
                       Nuovo Piatto
                     </Button>
@@ -168,6 +287,8 @@ const Dashboard = () => {
                     <MenuItemForm
                       onSave={handleAddItem}
                       onCancel={() => setIsAddDialogOpen(false)}
+                      categories={data?.categories || []}
+                      allergens={data?.allergens || []}
                     />
                   </DialogContent>
                 </Dialog>
@@ -211,6 +332,7 @@ const Dashboard = () => {
                             setEditingItem(item);
                             setIsEditDialogOpen(true);
                           }}
+                          disabled={updateItemMutation.isPending}
                         >
                           <PenSquare className="mr-2 h-4 w-4" />
                           Modifica
@@ -218,6 +340,7 @@ const Dashboard = () => {
                         <DropdownMenuItem
                           className="text-red-600"
                           onClick={() => handleDeleteItem(item.id)}
+                          disabled={deleteItemMutation.isPending}
                         >
                           <Trash className="mr-2 h-4 w-4" />
                           Elimina
@@ -251,6 +374,8 @@ const Dashboard = () => {
                       setIsEditDialogOpen(false);
                       setEditingItem(null);
                     }}
+                    categories={data?.categories || []}
+                    allergens={data?.allergens || []}
                   />
                 )}
               </DialogContent>
@@ -321,7 +446,12 @@ const Dashboard = () => {
                       onOpenChange={setIsInfoDialogOpen}
                     >
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-9">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-9"
+                          disabled={updateInfoMutation.isPending}
+                        >
                           <PenSquare className="mr-2 h-4 w-4" />
                           Modifica
                         </Button>

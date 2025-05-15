@@ -4,7 +4,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MenuItem } from "@/types/menu";
-import { categories, allergens } from "@/data/menuData";
 import ImageUploader from "./ImageUploader";
 
 import { Button } from "@/components/ui/button";
@@ -48,13 +47,22 @@ interface MenuItemFormProps {
   item?: MenuItem;
   onSave: (item: Omit<MenuItem, "id">) => void;
   onCancel: () => void;
+  categories?: string[];
+  allergens?: string[];
 }
 
-const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
+const MenuItemForm = ({ 
+  item, 
+  onSave, 
+  onCancel,
+  categories = [], 
+  allergens = [] 
+}: MenuItemFormProps) => {
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     item?.allergens || []
   );
   const [imageUrl, setImageUrl] = useState<string>(item?.image || "/placeholder.svg");
+  const [newCategory, setNewCategory] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,7 +70,7 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
       name: item?.name || "",
       description: item?.description || "",
       price: item?.price || 0,
-      category: item?.category || categories[0],
+      category: item?.category || (categories.length > 0 ? categories[0] : ""),
     },
   });
 
@@ -78,6 +86,20 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
     setImageUrl(url);
   };
 
+  const handleCategoryChange = (value: string) => {
+    if (value === "new") {
+      // Show input for new category
+      return;
+    }
+    form.setValue("category", value);
+  };
+
+  const handleAddNewCategory = () => {
+    if (newCategory.trim() === "") return;
+    form.setValue("category", newCategory.trim());
+    setNewCategory("");
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     onSave({
       name: values.name,
@@ -88,6 +110,12 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
       allergens: selectedAllergens,
     });
   };
+
+  // Get all categories including user-entered categories
+  const allCategories = [...new Set([
+    ...(item?.category ? [item.category] : []), 
+    ...categories
+  ])];
 
   return (
     <Form {...form}>
@@ -148,27 +176,53 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Categoria</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona una categoria" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {allCategories.length > 0 ? (
+                <Select
+                  onValueChange={handleCategoryChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona una categoria" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {allCategories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="new">+ Aggiungi nuova categoria</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input
+                      placeholder="Nuova categoria"
+                      value={field.value}
+                      onChange={(e) => form.setValue("category", e.target.value)}
+                    />
+                  </FormControl>
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {form.watch("category") === "new" && (
+          <div className="flex gap-2">
+            <Input
+              placeholder="Nome della nuova categoria"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+            <Button type="button" onClick={handleAddNewCategory}>
+              Aggiungi
+            </Button>
+          </div>
+        )}
 
         <div className="space-y-2">
           <FormLabel>Immagine del piatto</FormLabel>
@@ -218,7 +272,32 @@ const MenuItemForm = ({ item, onSave, onCancel }: MenuItemFormProps) => {
                 </label>
               </div>
             ))}
+            {allergens.length === 0 && selectedAllergens.map((allergen) => (
+              <div
+                key={allergen}
+                className="flex items-center space-x-2 rounded-md border p-2"
+              >
+                <Checkbox
+                  id={`allergen-${allergen}`}
+                  checked={true}
+                  onCheckedChange={() => toggleAllergen(allergen)}
+                />
+                <label
+                  htmlFor={`allergen-${allergen}`}
+                  className="text-sm font-medium leading-none"
+                >
+                  {allergen}
+                </label>
+              </div>
+            ))}
           </div>
+          {allergens.length === 0 && selectedAllergens.length === 0 && (
+            <div className="mt-2">
+              <p className="text-sm text-gray-500">
+                Nessun allergene disponibile. Gli allergeni verranno creati automaticamente quando salvi il piatto.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2 justify-end">

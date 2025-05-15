@@ -1,6 +1,8 @@
 
-import { useState } from "react";
-import { menuItems, categories, allergens, restaurantInfo } from "@/data/menuData";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
+import { loadMenuData } from "@/services/supabaseService";
 import CategoryFilter from "@/components/CategoryFilter";
 import AllergenFilter from "@/components/AllergenFilter";
 import MenuItem from "@/components/MenuItem";
@@ -9,6 +11,31 @@ import RestaurantInfo from "@/components/RestaurantInfo";
 const MenuPage = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [allergens, setAllergens] = useState<string[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
+  const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfoType>({
+    name: "Caricamento...",
+    openingHours: "",
+    phone: "",
+    address: "",
+    socialLinks: {}
+  });
+  
+  // Fetch menu data from Supabase
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['menuData'],
+    queryFn: loadMenuData
+  });
+  
+  useEffect(() => {
+    if (data) {
+      setMenuItems(data.menuItems);
+      setCategories(data.categories);
+      setAllergens(data.allergens);
+      setRestaurantInfo(data.restaurantInfo);
+    }
+  }, [data]);
 
   const handleAllergenChange = (allergen: string) => {
     setExcludedAllergens((current) =>
@@ -25,6 +52,28 @@ const MenuPage = () => {
     }
     return true;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mb-4 text-3xl font-bold">Caricamento...</div>
+          <p className="text-gray-500">Stiamo caricando il menu del ristorante.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
+          <p className="text-gray-500">Si è verificato un errore durante il caricamento del menu.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
