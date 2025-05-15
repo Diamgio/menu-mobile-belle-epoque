@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import MenuPage from "./pages/MenuPage";
@@ -18,25 +19,27 @@ const queryClient = new QueryClient();
 
 // Definito esplicitamente come componente React
 const App: React.FC = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<MenuPage />} />
-            <Route path="/admin" element={<Login />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/admin/dashboard" element={<Dashboard />} />
-            </Route>
-            <Route path="/home" element={<Index />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<MenuPage />} />
+              <Route path="/admin" element={<Login />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/admin/dashboard" element={<Dashboard />} />
+              </Route>
+              <Route path="/home" element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

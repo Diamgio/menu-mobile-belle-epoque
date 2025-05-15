@@ -7,6 +7,7 @@ import CategoryFilter from "@/components/CategoryFilter";
 import AllergenFilter from "@/components/AllergenFilter";
 import MenuItem from "@/components/MenuItem";
 import RestaurantInfo from "@/components/RestaurantInfo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -57,10 +58,10 @@ const MenuPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <div className="mb-4 text-3xl font-bold">Caricamento...</div>
-          <p className="text-gray-500">Stiamo caricando il menu del ristorante.</p>
+          <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
+          <p className="text-gray-500 dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
         </div>
       </div>
     );
@@ -68,21 +69,22 @@ const MenuPage = () => {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
-          <p className="text-gray-500">Si è verificato un errore durante il caricamento del menu.</p>
+          <p className="text-gray-500 dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 relative">
-      <div className="sticky top-0 z-30 bg-white px-4 py-3 shadow-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative">
+      <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold">{restaurantInfo.name}</h1>
+          <h1 className="text-xl font-bold dark:text-white">{restaurantInfo.name}</h1>
           <div className="flex items-center space-x-2">
+            <ThemeToggle />
             <AllergenFilter
               allergens={allergens}
               excludedAllergens={excludedAllergens}
@@ -110,7 +112,7 @@ const MenuPage = () => {
 
         {filteredItems.length === 0 && (
           <div className="mt-8 text-center">
-            <p className="text-gray-500">Nessun piatto trovato</p>
+            <p className="text-gray-500 dark:text-gray-400">Nessun piatto trovato</p>
           </div>
         )}
       </div>

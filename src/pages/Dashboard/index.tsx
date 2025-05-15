@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { loadMenuData } from "@/services/supabaseService";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import MenuManagement from "./components/MenuManagement";
 import RestaurantInfoManagement from "./components/RestaurantInfoManagement";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -64,10 +65,10 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <div className="mb-4 text-3xl font-bold">Caricamento...</div>
-          <p className="text-gray-500">Stiamo caricando i dati del ristorante.</p>
+          <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
+          <p className="text-gray-500 dark:text-gray-400">Stiamo caricando i dati del ristorante.</p>
         </div>
       </div>
     );
@@ -75,9 +76,9 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center max-w-md mx-auto">
-          <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
+          <div className="mb-4 text-3xl font-bold text-red-600 dark:text-red-500">Errore</div>
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>
               {error instanceof Error ? error.message : "Si è verificato un errore durante il caricamento dei dati."}
@@ -95,11 +96,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
-      <header className="sticky top-0 z-10 bg-white px-4 py-4 shadow-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-16">
+      <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-4 py-4 shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <h1 className="text-xl font-bold">Dashboard Admin</h1>
+          <h1 className="text-xl font-bold dark:text-white">Dashboard Admin</h1>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button
               variant="outline"
               size="sm"
