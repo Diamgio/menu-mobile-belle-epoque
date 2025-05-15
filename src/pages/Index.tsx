@@ -8,7 +8,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-muted p-4">
       <div className="text-center max-w-lg">
-        <h1 className="text-4xl font-bold mb-4 text-foreground">Menu Mobile Magica</h1>
+        <h1 className="text-4xl font-bold mb-4 text-foreground">Belle Èpoque - La Brasserie dal 1989 - Menu Mobile</h1>
         <p className="text-xl text-muted-foreground mb-8">
           Gestisci il tuo menu di ristorante in modo semplice ed elegante, accessibile da qualsiasi dispositivo.
         </p>
