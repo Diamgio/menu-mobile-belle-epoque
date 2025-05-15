@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'menu-mobile-magica-v1';
+const CACHE_NAME = 'Belle Èpoque - La Brasserie dal 1989';
 const urlsToCache = [
   '/',
   '/index.html',
