@@ -27,11 +27,11 @@ const CategoryFilter = ({
   }, [activeCategory, categories]);
 
   return (
-    <div className="overflow-x-auto scrollbar-hide sticky top-0 z-20 bg-white dark:bg-gray-800 pb-2 shadow-sm">
-      <div className="flex space-x-2 px-4 py-3">
+    <div className="overflow-x-auto scrollbar-hide sticky top-0 z-20 bg-white dark:bg-gray-800 pb-3 shadow-sm">
+      <div className="flex space-x-3 px-5 py-4">
         <button
           className={cn(
-            "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+            "menu-category-button",
             activeCategory === null
               ? "bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
@@ -45,7 +45,7 @@ const CategoryFilter = ({
             id={`category-${category}`}
             key={category}
             className={cn(
-              "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              "menu-category-button",
               activeCategory === category
                 ? "bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
