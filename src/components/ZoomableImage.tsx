@@ -15,6 +15,7 @@ interface ZoomableImageProps {
   className?: string;
   containerClassName?: string;
   aspectRatio?: number;
+  showLoadingPlaceholder?: boolean; // New prop
 }
 
 const ZoomableImage = ({
@@ -23,6 +24,7 @@ const ZoomableImage = ({
   className,
   containerClassName,
   aspectRatio,
+  showLoadingPlaceholder = true, // Default to true for backward compatibility
 }: ZoomableImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -65,13 +67,14 @@ const ZoomableImage = ({
   // Enhanced placeholder detection
   const isPlaceholder = src.includes('placeholder') || src === '/placeholder.svg';
   
+  // Conditionally show loading placeholder based on the prop
   const imageFallback = hasError ? (
     <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
       <ImageOff className="text-gray-400 w-8 h-8" />
       <span className="text-gray-400 ml-2">Immagine non disponibile</span>
     </div>
-  ) : !isLoaded ? (
-    <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+  ) : (!isLoaded && showLoadingPlaceholder) ? (
+    <div className="absolute inset-0 bg-gray-100" />
   ) : null;
 
   return (
@@ -86,7 +89,7 @@ const ZoomableImage = ({
                 className={cn(
                   "w-full h-full object-cover", 
                   className, 
-                  !isLoaded ? "invisible" : "",
+                  !isLoaded && showLoadingPlaceholder ? "invisible" : "",
                   isPlaceholder ? "object-contain p-2" : ""
                 )}
                 onLoad={handleLoad}
@@ -102,7 +105,7 @@ const ZoomableImage = ({
                 className={cn(
                   "w-full h-full object-cover", 
                   className, 
-                  !isLoaded ? "invisible" : "",
+                  !isLoaded && showLoadingPlaceholder ? "invisible" : "",
                   isPlaceholder ? "object-contain p-2" : ""
                 )}
                 onLoad={handleLoad}
