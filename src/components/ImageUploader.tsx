@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Loader2, ImagePlus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ImageUploaderProps {
   onImageUploaded: (url: string) => void;
@@ -21,6 +22,7 @@ const ImageUploader = ({
   existingImageUrl
 }: ImageUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const bucketName = "belleepoque";
 
@@ -29,8 +31,12 @@ const ImageUploader = ({
     
     if (!file) return;
 
+    // Reset error state
+    setError(null);
+
     // Controllo del tipo e dimensione del file
     if (!file.type.startsWith("image/")) {
+      setError("Per favore carica un'immagine");
       toast({
         title: "Tipo di file non valido",
         description: "Per favore carica un'immagine",
@@ -40,6 +46,7 @@ const ImageUploader = ({
     }
 
     if (file.size > 5 * 1024 * 1024) {
+      setError("L'immagine deve essere inferiore a 5MB");
       toast({
         title: "File troppo grande",
         description: "L'immagine deve essere inferiore a 5MB",
@@ -64,17 +71,24 @@ const ImageUploader = ({
         );
         
         if (existingPath.startsWith(folder)) {
-          await supabase.storage.from(bucketName).remove([existingPath]);
+          const { error: deleteError } = await supabase.storage.from(bucketName).remove([existingPath]);
+          if (deleteError) {
+            console.warn("Errore durante l'eliminazione dell'immagine precedente:", deleteError);
+            // Continua comunque con l'upload della nuova immagine
+          }
         }
       }
 
       // Carichiamo la nuova immagine
-      const { data, error } = await supabase.storage
+      const { data, error: uploadError } = await supabase.storage
         .from(bucketName)
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (error) {
-        throw error;
+      if (uploadError) {
+        throw uploadError;
       }
 
       // Generiamo l'URL pubblico
@@ -90,6 +104,7 @@ const ImageUploader = ({
       });
     } catch (error: any) {
       console.error("Errore durante l'upload:", error);
+      setError(error.message || "Si è verificato un errore durante il caricamento dell'immagine");
       toast({
         title: "Errore durante il caricamento",
         description: error.message || "Si è verificato un errore durante il caricamento dell'immagine",
@@ -101,7 +116,12 @@ const ImageUploader = ({
   };
 
   return (
-    <div className={`${className}`}>
+    <div className={`${className} space-y-3`}>
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       <label>
         <input
           type="file"
@@ -132,6 +152,11 @@ const ImageUploader = ({
           </span>
         </Button>
       </label>
+      {isUploading && (
+        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+          <div className="bg-blue-600 h-1.5 rounded-full animate-pulse"></div>
+        </div>
+      )}
     </div>
   );
 };

@@ -9,16 +9,24 @@ import { useQuery } from "@tanstack/react-query";
 import { loadMenuData } from "@/services/supabaseService";
 import MenuManagement from "./components/MenuManagement";
 import RestaurantInfoManagement from "./components/RestaurantInfoManagement";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signOut } = useAuth();
 
-  // Query for menu data
+  // Verificare che l'utente sia autenticato, altrimenti reindirizzare
+  useAuthRedirect({ redirectTo: "/admin", shouldBeAuthenticated: true });
+
+  // Query per i dati del menu
   const { 
     data, 
     isLoading, 
-    error 
+    error,
+    refetch
   } = useQuery({
     queryKey: ['menuData'],
     queryFn: loadMenuData
@@ -33,12 +41,21 @@ const Dashboard = () => {
     socialLinks: {}
   };
 
-  const handleLogout = () => {
-    toast({
-      title: "Logout effettuato",
-      description: "Sei stato disconnesso con successo",
-    });
-    navigate("/admin");
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logout effettuato",
+        description: "Sei stato disconnesso con successo",
+      });
+    } catch (error) {
+      console.error("Errore durante il logout:", error);
+      toast({
+        variant: "destructive",
+        title: "Errore durante il logout",
+        description: "Si è verificato un errore durante il logout"
+      });
+    }
   };
 
   const handlePreviewMenu = () => {
@@ -59,11 +76,15 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto">
           <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
-          <p className="text-gray-500">Si è verificato un errore durante il caricamento dei dati.</p>
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>
+              {error instanceof Error ? error.message : "Si è verificato un errore durante il caricamento dei dati."}
+            </AlertDescription>
+          </Alert>
           <Button 
-            onClick={() => window.location.reload()}
+            onClick={() => refetch()}
             className="mt-4"
           >
             Riprova
