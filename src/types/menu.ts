@@ -6,6 +6,7 @@ export interface MenuItem {
   price: number;
   category: string;
   image?: string;
+  images?: string[]; // New field for multiple images
   allergens: string[];
 }
 

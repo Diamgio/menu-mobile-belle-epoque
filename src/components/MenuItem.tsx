@@ -22,6 +22,9 @@ const MenuItem = ({ item, excludedAllergens }: MenuItemProps) => {
     excludedAllergens.includes(allergen)
   );
 
+  // Convert image to array if it's a string for compatibility
+  const images = item.images || (item.image ? [item.image] : []);
+
   return (
     <Card className={cn(
       "transition-opacity duration-200",
@@ -57,7 +60,7 @@ const MenuItem = ({ item, excludedAllergens }: MenuItemProps) => {
         </div>
         <div className="col-span-1 flex items-center justify-center">
           <ZoomableImage
-            src={item.image}
+            src={images}
             alt={item.name}
             className="rounded-md"
             containerClassName="h-24 w-24"

@@ -8,14 +8,21 @@ import {
 import { cn } from "@/lib/utils";
 import { ZoomIn, ImageOff } from "lucide-react";
 import { AspectRatio } from "./ui/aspect-ratio";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface ZoomableImageProps {
-  src: string;
+  src: string | string[]; // Updated to support both single image or array of images
   alt: string;
   className?: string;
   containerClassName?: string;
   aspectRatio?: number;
-  showLoadingPlaceholder?: boolean; // New prop
+  showLoadingPlaceholder?: boolean;
 }
 
 const ZoomableImage = ({
@@ -29,33 +36,36 @@ const ZoomableImage = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageType, setImageType] = useState<string | null>(null);
+  
+  // Convert src to array if it's a string for unified handling
+  const imageSources = Array.isArray(src) ? src : [src];
 
   // Determine if the image is a placeholder or SVG
   useEffect(() => {
-    if (src) {
-      const extension = src.split('.').pop()?.toLowerCase();
+    if (imageSources[0]) {
+      const extension = imageSources[0].split('.').pop()?.toLowerCase();
       setImageType(extension || null);
       
       // Reset states when src changes
       setIsLoaded(false);
       setHasError(false);
     }
-  }, [src]);
+  }, [imageSources[0]]);
 
   const handleLoad = () => {
     setIsLoaded(true);
     setHasError(false);
-    console.log(`Image loaded successfully: ${src}`);
+    console.log(`Image loaded successfully: ${imageSources[0]}`);
   };
 
   const handleError = () => {
     setHasError(true);
     setIsLoaded(true);
-    console.error(`Failed to load image: ${src}`);
+    console.error(`Failed to load image: ${imageSources[0]}`);
   };
 
   // Show fallback for missing images
-  if (!src) {
+  if (!imageSources[0]) {
     return (
       <div className={cn("bg-gray-100 flex items-center justify-center", containerClassName)}>
         <ImageOff className="text-gray-400 w-8 h-8" />
@@ -65,7 +75,7 @@ const ZoomableImage = ({
   }
 
   // Enhanced placeholder detection
-  const isPlaceholder = src.includes('placeholder') || src === '/placeholder.svg';
+  const isPlaceholder = imageSources[0].includes('placeholder') || imageSources[0] === '/placeholder.svg';
   
   // Conditionally show loading placeholder based on the prop
   const imageFallback = hasError ? (
@@ -84,7 +94,7 @@ const ZoomableImage = ({
           {aspectRatio ? (
             <AspectRatio ratio={aspectRatio} className="overflow-hidden">
               <img
-                src={src}
+                src={imageSources[0]}
                 alt={alt}
                 className={cn(
                   "w-full h-full object-cover", 
@@ -100,7 +110,7 @@ const ZoomableImage = ({
           ) : (
             <>
               <img
-                src={src}
+                src={imageSources[0]}
                 alt={alt}
                 className={cn(
                   "w-full h-full object-cover", 
@@ -120,13 +130,27 @@ const ZoomableImage = ({
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none">
-        <div className="relative">
-          <img
-            src={src}
-            alt={alt}
-            className="max-h-[80vh] max-w-full object-contain"
-          />
-        </div>
+        <Carousel className="w-full max-w-3xl">
+          <CarouselContent>
+            {imageSources.map((imageUrl, index) => (
+              <CarouselItem key={index} className="flex items-center justify-center">
+                <div className="relative bg-black bg-opacity-90 p-2 rounded-lg">
+                  <img
+                    src={imageUrl}
+                    alt={`${alt} ${index + 1}`}
+                    className="max-h-[80vh] w-auto object-contain mx-auto"
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          {imageSources.length > 1 && (
+            <>
+              <CarouselPrevious className="absolute left-2 bg-black/50 hover:bg-black/70 text-white border-none" />
+              <CarouselNext className="absolute right-2 bg-black/50 hover:bg-black/70 text-white border-none" />
+            </>
+          )}
+        </Carousel>
       </DialogContent>
     </Dialog>
   );
