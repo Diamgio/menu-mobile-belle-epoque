@@ -62,7 +62,7 @@ const ZoomableImage = ({
     );
   }
 
-  // For placeholder SVG or loading states, ensure it displays correctly
+  // Enhanced placeholder detection
   const isPlaceholder = src.includes('placeholder') || src === '/placeholder.svg';
   
   const imageFallback = hasError ? (

@@ -2,6 +2,7 @@
 import { RestaurantInfo } from "@/types/menu";
 import { PenSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ZoomableImage from "@/components/ZoomableImage";
 
 interface RestaurantDetailsProps {
   restaurantInfo: RestaurantInfo;
@@ -19,10 +20,10 @@ const RestaurantDetails = ({ restaurantInfo, onEdit, isUpdating }: RestaurantDet
             <div>
               <dt className="text-xs text-gray-500">Logo</dt>
               <dd className="w-16 h-16">
-                <img 
+                <ZoomableImage 
                   src={restaurantInfo.logo} 
                   alt="Logo ristorante" 
-                  className="w-full h-full object-contain"
+                  containerClassName="w-full h-full"
                 />
               </dd>
             </div>
