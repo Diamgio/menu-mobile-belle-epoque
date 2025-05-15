@@ -1,12 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { ZoomIn } from "lucide-react";
+import { ZoomIn, ImageOff } from "lucide-react";
 import { AspectRatio } from "./ui/aspect-ratio";
 
 interface ZoomableImageProps {
@@ -26,24 +26,53 @@ const ZoomableImage = ({
 }: ZoomableImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [imageType, setImageType] = useState<string | null>(null);
+
+  // Determine if the image is a placeholder or SVG
+  useEffect(() => {
+    if (src) {
+      const extension = src.split('.').pop()?.toLowerCase();
+      setImageType(extension || null);
+      
+      // Reset states when src changes
+      setIsLoaded(false);
+      setHasError(false);
+    }
+  }, [src]);
 
   const handleLoad = () => {
     setIsLoaded(true);
     setHasError(false);
+    console.log(`Image loaded successfully: ${src}`);
   };
 
   const handleError = () => {
     setHasError(true);
     setIsLoaded(true);
+    console.error(`Failed to load image: ${src}`);
   };
 
+  // Show fallback for missing images
   if (!src) {
     return (
       <div className={cn("bg-gray-100 flex items-center justify-center", containerClassName)}>
-        <span className="text-gray-400">Immagine non disponibile</span>
+        <ImageOff className="text-gray-400 w-8 h-8" />
+        <span className="text-gray-400 ml-2">Immagine non disponibile</span>
       </div>
     );
   }
+
+  // For placeholder SVG or loading states, ensure it displays correctly
+  const isPlaceholder = src.includes('placeholder') || src === '/placeholder.svg';
+  
+  const imageFallback = hasError ? (
+    <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+      <ImageOff className="text-gray-400 w-8 h-8" />
+      <span className="text-gray-400 ml-2">Immagine non disponibile</span>
+    </div>
+  ) : !isLoaded ? (
+    <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+  ) : null;
 
   return (
     <Dialog>
@@ -54,28 +83,32 @@ const ZoomableImage = ({
               <img
                 src={src}
                 alt={alt}
-                className={cn("w-full h-full object-cover", className, !isLoaded ? "invisible" : "")}
+                className={cn(
+                  "w-full h-full object-cover", 
+                  className, 
+                  !isLoaded ? "invisible" : "",
+                  isPlaceholder ? "object-contain p-2" : ""
+                )}
                 onLoad={handleLoad}
                 onError={handleError}
               />
-              {!isLoaded && <div className="absolute inset-0 bg-gray-100 animate-pulse" />}
-              {hasError && <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                <span className="text-gray-400">Immagine non disponibile</span>
-              </div>}
+              {imageFallback}
             </AspectRatio>
           ) : (
             <>
               <img
                 src={src}
                 alt={alt}
-                className={cn("w-full h-full object-cover", className, !isLoaded ? "invisible" : "")}
+                className={cn(
+                  "w-full h-full object-cover", 
+                  className, 
+                  !isLoaded ? "invisible" : "",
+                  isPlaceholder ? "object-contain p-2" : ""
+                )}
                 onLoad={handleLoad}
                 onError={handleError}
               />
-              {!isLoaded && <div className="absolute inset-0 bg-gray-100 animate-pulse" />}
-              {hasError && <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                <span className="text-gray-400">Immagine non disponibile</span>
-              </div>}
+              {imageFallback}
             </>
           )}
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">

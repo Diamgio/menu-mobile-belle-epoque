@@ -76,7 +76,7 @@ export async function transformDbSettingsToRestaurantInfo(dbSettings: DbSettings
       phone: "",
       address: "",
       socialLinks: {},
-      logo: undefined
+      logo: "/placeholder.svg" // Use placeholder SVG as fallback
     };
   }
   
@@ -93,7 +93,7 @@ export async function transformDbSettingsToRestaurantInfo(dbSettings: DbSettings
       facebook: dbSettings.facebook_url || undefined,
       instagram: dbSettings.instagram_url || undefined
     },
-    logo: dbSettings.logo_url || undefined
+    logo: dbSettings.logo_url || "/placeholder.svg" // Added fallback to placeholder if logo_url is null
   };
 }
 
