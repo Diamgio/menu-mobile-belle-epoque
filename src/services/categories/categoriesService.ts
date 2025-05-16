@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { DbCategory } from "../types";
-import { useAuth } from "@/contexts/AuthContext";
 
 // Categories service
 export const categoriesService = {
@@ -70,14 +69,11 @@ export const categoriesService = {
       : 0;
     
     // Create category with restaurant_id if provided
-    const newCategory: Partial<DbCategory> = { 
+    const newCategory = { 
       name, 
-      order_index: nextOrderIndex 
+      order_index: nextOrderIndex,
+      restaurant_id: restaurantId
     };
-    
-    if (restaurantId) {
-      newCategory.restaurant_id = restaurantId;
-    }
     
     const { data, error } = await supabase
       .from('categories')

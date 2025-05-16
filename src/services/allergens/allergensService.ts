@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { DbAllergen } from "../types";
-import { useAuth } from "@/contexts/AuthContext";
 
 // Allergens service
 export const allergensService = {
@@ -52,11 +51,10 @@ export const allergensService = {
   
   async createAllergen(name: string, restaurantId?: number): Promise<DbAllergen> {
     // Create allergen with restaurant_id if provided
-    const newAllergen: Partial<DbAllergen> = { name };
-    
-    if (restaurantId) {
-      newAllergen.restaurant_id = restaurantId;
-    }
+    const newAllergen = { 
+      name,
+      restaurant_id: restaurantId 
+    };
     
     const { data, error } = await supabase
       .from('allergens')

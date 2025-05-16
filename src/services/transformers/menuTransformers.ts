@@ -5,7 +5,6 @@ import { DbDish, DbSettings } from "../types";
 import { dishesService } from "../dishes/dishesService";
 import { categoriesService } from "../categories/categoriesService";
 import { allergensService } from "../allergens/allergensService";
-import { useAuth } from "@/contexts/AuthContext";
 
 // Data transformation functions
 export async function transformDbDishToMenuItem(dbDish: DbDish): Promise<MenuItem> {
@@ -141,7 +140,7 @@ export async function transformRestaurantInfoToDbSettings(
     }
   }
   
-  const settings: Omit<DbSettings, "id"> = {
+  const settings: any = {
     restaurant_name: info.name,
     address: info.address,
     phone: info.phone,
@@ -149,9 +148,13 @@ export async function transformRestaurantInfoToDbSettings(
     facebook_url: info.socialLinks.facebook || null,
     instagram_url: info.socialLinks.instagram || null,
     other_social: null,
-    logo_url: info.logo || null,
-    restaurant_id: effectiveRestaurantId
+    logo_url: info.logo || null
   };
+  
+  // Add restaurant_id if available
+  if (effectiveRestaurantId) {
+    settings.restaurant_id = effectiveRestaurantId;
+  }
   
   return settings;
 }

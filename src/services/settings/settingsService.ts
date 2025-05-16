@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { DbSettings } from "../types";
-import { useAuth } from "@/contexts/AuthContext";
 
 // Restaurant settings service
 export const settingsService = {
@@ -44,8 +43,8 @@ export const settingsService = {
     const { data: existing } = await findQuery.maybeSingle();
     
     // Add restaurant_id to settings if provided
-    const settingsToSave: Omit<DbSettings, 'id'> = { ...settings };
-    if (restaurantId && !settingsToSave.restaurant_id) {
+    const settingsToSave = { ...settings };
+    if (restaurantId) {
       settingsToSave.restaurant_id = restaurantId;
     }
     
