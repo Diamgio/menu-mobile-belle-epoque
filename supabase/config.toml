@@ -33,3 +33,7 @@ api_url = "https://api.supabase.com"
 # Disable JWT verification for the webhook function
 [functions.subscription-webhook]
 verify_jwt = false
+
+# Our new create-restaurant function config
+[functions.create-restaurant]
+verify_jwt = false

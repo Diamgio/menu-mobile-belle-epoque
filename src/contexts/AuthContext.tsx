@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
@@ -134,16 +133,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Create a new restaurant
+  // Create a new restaurant using the edge function
   const createRestaurant = async (name: string, subdomain: string): Promise<Restaurant | null> => {
     try {
-      const { data, error } = await supabase
-        .from('restaurants')
-        .insert({ name, subdomain, user_id: user?.id })
-        .select()
-        .single();
+      // Get the current session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
       
-      if (error) throw error;
+      if (!currentSession) {
+        throw new Error("Sessione non valida. Effettua il login.");
+      }
+      
+      // Call our edge function to create the restaurant using the service role
+      const response = await supabase.functions.invoke('create-restaurant', {
+        body: { name, subdomain },
+        headers: {
+          Authorization: `Bearer ${currentSession.access_token}`
+        }
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || "Errore durante la creazione del ristorante");
+      }
+      
+      const data = response.data;
       
       // Reload restaurants to include the new one
       await loadRestaurants();
@@ -159,7 +171,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast({
         variant: "destructive",
         title: "Errore",
-        description: "Impossibile creare il ristorante."
+        description: error instanceof Error ? error.message : "Impossibile creare il ristorante."
       });
       return null;
     }
