@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MenuItem } from "@/types/menu";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import ImageUploader from "./ImageUploader";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +18,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AspectRatio } from "./ui/aspect-ratio";
 
-// Import our new components
-import CategorySelector from "./menu/CategorySelector";
-import DishImageUploader from "./menu/DishImageUploader";
-import AllergenSelector from "./menu/AllergenSelector";
-
-// Keep the form schema the same
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Il nome deve contenere almeno 2 caratteri",
@@ -55,17 +58,11 @@ const MenuItemForm = ({
   categories = [], 
   allergens = [] 
 }: MenuItemFormProps) => {
-  const queryClient = useQueryClient();
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     item?.allergens || []
   );
   const [imageUrl, setImageUrl] = useState<string>(item?.image || "/placeholder.svg");
-  const [localCategories, setLocalCategories] = useState<string[]>(categories);
-
-  // Update local categories when props change
-  useEffect(() => {
-    setLocalCategories(categories);
-  }, [categories]);
+  const [newCategory, setNewCategory] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,24 +86,21 @@ const MenuItemForm = ({
     setImageUrl(url);
   };
 
-  const handleCategoryChange = (category: string) => {
-    // If it's a new category that doesn't exist in our list yet
-    if (!localCategories.includes(category)) {
-      // Add to local categories
-      setLocalCategories(prev => [...prev, category]);
-      
-      // Invalidate queries to ensure fresh data on the next fetch
-      queryClient.invalidateQueries({ queryKey: ['menuData'] });
+  const handleCategoryChange = (value: string) => {
+    if (value === "new") {
+      // Show input for new category
+      return;
     }
-    
-    // Set the form value
-    form.setValue("category", category);
+    form.setValue("category", value);
+  };
+
+  const handleAddNewCategory = () => {
+    if (newCategory.trim() === "") return;
+    form.setValue("category", newCategory.trim());
+    setNewCategory("");
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Invalidate queries to ensure fresh data on the next fetch
-    queryClient.invalidateQueries({ queryKey: ['menuData'] });
-    
     onSave({
       name: values.name,
       description: values.description,
@@ -120,7 +114,7 @@ const MenuItemForm = ({
   // Get all categories including user-entered categories
   const allCategories = [...new Set([
     ...(item?.category ? [item.category] : []), 
-    ...localCategories
+    ...categories
   ])];
 
   return (
@@ -181,26 +175,130 @@ const MenuItemForm = ({
           name="category"
           render={({ field }) => (
             <FormItem>
-              <CategorySelector
-                categories={allCategories}
-                selectedCategory={field.value}
-                onCategoryChange={handleCategoryChange}
-              />
+              <FormLabel>Categoria</FormLabel>
+              {allCategories.length > 0 ? (
+                <Select
+                  onValueChange={handleCategoryChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona una categoria" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {allCategories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="new">+ Aggiungi nuova categoria</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input
+                      placeholder="Nuova categoria"
+                      value={field.value}
+                      onChange={(e) => form.setValue("category", e.target.value)}
+                    />
+                  </FormControl>
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <DishImageUploader 
-          imageUrl={imageUrl} 
-          onImageUploaded={handleImageUploaded}
-        />
+        {form.watch("category") === "new" && (
+          <div className="flex gap-2">
+            <Input
+              placeholder="Nome della nuova categoria"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+            <Button type="button" onClick={handleAddNewCategory}>
+              Aggiungi
+            </Button>
+          </div>
+        )}
 
-        <AllergenSelector
-          allergens={allergens}
-          selectedAllergens={selectedAllergens}
-          onToggleAllergen={toggleAllergen}
-        />
+        <div className="space-y-2">
+          <FormLabel>Immagine del piatto</FormLabel>
+          {imageUrl !== "/placeholder.svg" ? (
+            <div className="space-y-4">
+              <AspectRatio ratio={4 / 3} className="bg-muted rounded-md overflow-hidden">
+                <img
+                  src={imageUrl}
+                  alt="Immagine del piatto"
+                  className="w-full h-full object-cover"
+                />
+              </AspectRatio>
+              <ImageUploader
+                onImageUploaded={handleImageUploaded}
+                folder="dishes"
+                buttonText="Cambia immagine"
+                existingImageUrl={imageUrl}
+              />
+            </div>
+          ) : (
+            <ImageUploader
+              onImageUploaded={handleImageUploaded}
+              folder="dishes"
+              buttonText="Carica immagine"
+            />
+          )}
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-medium">Allergeni</p>
+          <div className="grid grid-cols-2 gap-2">
+            {allergens.map((allergen) => (
+              <div
+                key={allergen}
+                className="flex items-center space-x-2 rounded-md border p-2"
+              >
+                <Checkbox
+                  id={`allergen-${allergen}`}
+                  checked={selectedAllergens.includes(allergen)}
+                  onCheckedChange={() => toggleAllergen(allergen)}
+                />
+                <label
+                  htmlFor={`allergen-${allergen}`}
+                  className="text-sm font-medium leading-none"
+                >
+                  {allergen}
+                </label>
+              </div>
+            ))}
+            {allergens.length === 0 && selectedAllergens.map((allergen) => (
+              <div
+                key={allergen}
+                className="flex items-center space-x-2 rounded-md border p-2"
+              >
+                <Checkbox
+                  id={`allergen-${allergen}`}
+                  checked={true}
+                  onCheckedChange={() => toggleAllergen(allergen)}
+                />
+                <label
+                  htmlFor={`allergen-${allergen}`}
+                  className="text-sm font-medium leading-none"
+                >
+                  {allergen}
+                </label>
+              </div>
+            ))}
+          </div>
+          {allergens.length === 0 && selectedAllergens.length === 0 && (
+            <div className="mt-2">
+              <p className="text-sm text-gray-500">
+                Nessun allergene disponibile. Gli allergeni verranno creati automaticamente quando salvi il piatto.
+              </p>
+            </div>
+          )}
+        </div>
 
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="outline" onClick={onCancel}>

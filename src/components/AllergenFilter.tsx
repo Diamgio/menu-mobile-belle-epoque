@@ -31,17 +31,17 @@ const AllergenFilter = ({
         <Button 
           variant={isFloating ? "default" : "outline"} 
           size={isFloating ? "icon" : "sm"}
-          className={`${isFloating ? "rounded-full shadow-lg h-14 w-14 md:h-auto md:w-auto md:rounded-md md:px-5 md:py-2 md:text-base" : "gap-2 text-base"}`}
+          className={`${isFloating ? "rounded-full shadow-lg h-12 w-12 md:h-auto md:w-auto md:rounded-md md:px-4" : "gap-2"}`}
         >
-          <Filter size={isFloating ? 20 : 16} />
+          <Filter size={16} />
           {!isFloating && "Filtro Allergeni"}
           {!isFloating && excludedAllergens.length > 0 && (
-            <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-sm text-white">
+            <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-white">
               {excludedAllergens.length}
             </span>
           )}
           {isFloating && excludedAllergens.length > 0 && (
-            <span className="absolute -top-2 -right-2 rounded-full bg-red-500 w-6 h-6 flex items-center justify-center text-sm text-white">
+            <span className="absolute -top-2 -right-2 rounded-full bg-red-500 w-5 h-5 flex items-center justify-center text-xs text-white">
               {excludedAllergens.length}
             </span>
           )}
@@ -49,23 +49,22 @@ const AllergenFilter = ({
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle className="text-xl">Filtro Allergeni</SheetTitle>
-          <SheetDescription className="text-base">
+          <SheetTitle>Filtro Allergeni</SheetTitle>
+          <SheetDescription>
             Seleziona gli allergeni da escludere
           </SheetDescription>
         </SheetHeader>
-        <div className="mt-8 space-y-5">
+        <div className="mt-6 space-y-4">
           {allergens.map((allergen) => (
-            <div key={allergen} className="flex items-center space-x-3">
+            <div key={allergen} className="flex items-center space-x-2">
               <Checkbox
                 id={`allergen-${allergen}`}
                 checked={excludedAllergens.includes(allergen)}
                 onCheckedChange={() => onAllergenChange(allergen)}
-                className="h-5 w-5"
               />
               <label
                 htmlFor={`allergen-${allergen}`}
-                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {allergen}
               </label>

@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React from 'react';  // Aggiunto import esplicito di React
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -21,25 +22,8 @@ const themeScriptTag = document.createElement('script');
 themeScriptTag.innerHTML = themeScript;
 document.head.appendChild(themeScriptTag);
 
-// Register service worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        console.log('SW registered: ', registration);
-      })
-      .catch(registrationError => {
-        console.log('SW registration failed: ', registrationError);
-      });
-  });
-}
-
-// Create root and render app with explicit React import
-const rootElement = document.getElementById("root");
-if (!rootElement) throw new Error("Root element not found");
-
-const root = createRoot(rootElement);
-root.render(
+// Utilizziamo React.StrictMode per avvolgere l'App
+createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

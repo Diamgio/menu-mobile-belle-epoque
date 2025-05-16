@@ -18,20 +18,6 @@ export default {
 			}
 		},
 		extend: {
-			fontSize: {
-				// Enhancing base font sizes for better readability
-				'base': '1.125rem',    // Increased from default 1rem
-				'lg': '1.25rem',      // Slightly larger
-				'xl': '1.375rem',     // Moderately larger
-				'2xl': '1.625rem',    // More readable headings
-			},
-			lineHeight: {
-				'relaxed': '1.75',    // More space between lines for better readability
-			},
-			spacing: {
-				// Adding more spacing options for improved layout
-				'18': '4.5rem',
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

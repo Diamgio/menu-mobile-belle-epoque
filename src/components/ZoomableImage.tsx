@@ -74,9 +74,9 @@ const ZoomableImage = ({
   // Show fallback for missing images
   if (!imageSources[0]) {
     return (
-      <div className={cn("bg-gray-100 flex flex-col items-center justify-center p-4", containerClassName)}>
-        <ImageOff className="text-gray-400 w-10 h-10 mb-2" />
-        <span className="text-gray-500 text-center text-base">Immagine non disponibile</span>
+      <div className={cn("bg-gray-100 flex items-center justify-center", containerClassName)}>
+        <ImageOff className="text-gray-400 w-8 h-8" />
+        <span className="text-gray-400 ml-2">Immagine non disponibile</span>
       </div>
     );
   }
@@ -86,9 +86,9 @@ const ZoomableImage = ({
   
   // Conditionally show loading placeholder based on the prop
   const imageFallback = hasError ? (
-    <div className="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center p-3">
-      <ImageOff className="text-gray-400 w-10 h-10 mb-2" />
-      <span className="text-gray-500 text-center text-base">Immagine non disponibile</span>
+    <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+      <ImageOff className="text-gray-400 w-8 h-8" />
+      <span className="text-gray-400 ml-2">Immagine non disponibile</span>
     </div>
   ) : (!isLoaded && showLoadingPlaceholder) ? (
     <div className="absolute inset-0 bg-gray-100" />
@@ -134,7 +134,7 @@ const ZoomableImage = ({
       )}
       {galleryContext && (
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
-          <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg w-8 h-8" />
+          <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg" />
         </div>
       )}
     </div>
