@@ -1,5 +1,5 @@
 
-import React from "react";
+import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,14 +15,14 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
-// Inizializzazione del QueryClient all'esterno del componente
+// Create QueryClient outside the component
 const queryClient = new QueryClient();
 
-// Definito esplicitamente come componente React
+// Explicitly defined as React component
 const App: React.FC = () => (
-  <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
         <GalleryProvider>
           <Toaster />
           <Sonner />
@@ -40,9 +40,9 @@ const App: React.FC = () => (
             </AuthProvider>
           </BrowserRouter>
         </GalleryProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+      </ThemeProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
 
 export default App;
