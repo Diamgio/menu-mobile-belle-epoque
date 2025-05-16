@@ -29,41 +29,22 @@ export async function transformDbDishToMenuItem(dbDish: DbDish): Promise<MenuIte
   };
 }
 
-export async function transformMenuItemToDbDish(
-  menuItem: Omit<MenuItem, "id">, 
-  existingId?: string,
-  restaurantId?: number
-): Promise<{ dish: Omit<DbDish, "id"> | DbDish, allergenIds: number[] }> {
-  let effectiveRestaurantId = restaurantId;
-  
-  // If no restaurant ID was provided, try to get it from the current restaurant
-  if (!effectiveRestaurantId) {
-    try {
-      // This is a bit of a hack since we're outside React and can't use hooks directly
-      const authContext = (window as any).__authContext;
-      if (authContext && authContext.currentRestaurant) {
-        effectiveRestaurantId = authContext.currentRestaurant.id;
-      }
-    } catch (error) {
-      console.log("No auth context available");
-    }
-  }
-  
+export async function transformMenuItemToDbDish(menuItem: Omit<MenuItem, "id">, existingId?: string): Promise<{ dish: Omit<DbDish, "id"> | DbDish, allergenIds: number[] }> {
   // Get or create category
-  let categoryId = await categoriesService.getCategoryIdByName(menuItem.category, effectiveRestaurantId);
+  let categoryId = await categoriesService.getCategoryIdByName(menuItem.category);
   
   if (categoryId === null) {
-    const newCategory = await categoriesService.createCategory(menuItem.category, effectiveRestaurantId);
+    const newCategory = await categoriesService.createCategory(menuItem.category);
     categoryId = newCategory.id;
   }
   
   // Handle allergens
   const allergenIds = await Promise.all(
     menuItem.allergens.map(async (allergenName) => {
-      let allergenId = await allergensService.getAllergenIdByName(allergenName, effectiveRestaurantId);
+      let allergenId = await allergensService.getAllergenIdByName(allergenName);
       
       if (allergenId === null) {
-        const newAllergen = await allergensService.createAllergen(allergenName, effectiveRestaurantId);
+        const newAllergen = await allergensService.createAllergen(allergenName);
         allergenId = newAllergen.id;
       }
       
@@ -78,11 +59,6 @@ export async function transformMenuItemToDbDish(
     category_id: categoryId,
     image_url: menuItem.image !== "/placeholder.svg" ? menuItem.image : null
   };
-  
-  // Add restaurant_id if provided
-  if (effectiveRestaurantId) {
-    dish.restaurant_id = effectiveRestaurantId;
-  }
   
   if (existingId) {
     dish.id = parseInt(existingId, 10);
@@ -121,26 +97,8 @@ export async function transformDbSettingsToRestaurantInfo(dbSettings: DbSettings
   };
 }
 
-export async function transformRestaurantInfoToDbSettings(
-  info: RestaurantInfo,
-  restaurantId?: number
-): Promise<Omit<DbSettings, "id">> {
-  let effectiveRestaurantId = restaurantId;
-  
-  // If no restaurant ID was provided, try to get it from the current restaurant
-  if (!effectiveRestaurantId) {
-    try {
-      // This is a bit of a hack since we're outside React and can't use hooks directly
-      const authContext = (window as any).__authContext;
-      if (authContext && authContext.currentRestaurant) {
-        effectiveRestaurantId = authContext.currentRestaurant.id;
-      }
-    } catch (error) {
-      console.log("No auth context available");
-    }
-  }
-  
-  const settings: any = {
+export async function transformRestaurantInfoToDbSettings(info: RestaurantInfo): Promise<Omit<DbSettings, "id">> {
+  return {
     restaurant_name: info.name,
     address: info.address,
     phone: info.phone,
@@ -150,11 +108,4 @@ export async function transformRestaurantInfoToDbSettings(
     other_social: null,
     logo_url: info.logo || null
   };
-  
-  // Add restaurant_id if available
-  if (effectiveRestaurantId) {
-    settings.restaurant_id = effectiveRestaurantId;
-  }
-  
-  return settings;
 }

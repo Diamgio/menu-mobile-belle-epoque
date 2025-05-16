@@ -4,18 +4,11 @@ import { DbAllergen } from "../types";
 
 // Allergens service
 export const allergensService = {
-  async getAll(restaurantId?: number): Promise<DbAllergen[]> {
-    let query = supabase
+  async getAll(): Promise<DbAllergen[]> {
+    const { data, error } = await supabase
       .from('allergens')
       .select('*')
       .order('name');
-    
-    // Filter by restaurant if ID is provided
-    if (restaurantId) {
-      query = query.eq('restaurant_id', restaurantId);
-    }
-    
-    const { data, error } = await query;
     
     if (error) {
       console.error('Error fetching allergens:', error);
@@ -25,18 +18,12 @@ export const allergensService = {
     return data || [];
   },
   
-  async getAllergenIdByName(name: string, restaurantId?: number): Promise<number | null> {
-    let query = supabase
+  async getAllergenIdByName(name: string): Promise<number | null> {
+    const { data, error } = await supabase
       .from('allergens')
       .select('id')
-      .eq('name', name);
-    
-    // Filter by restaurant if ID is provided
-    if (restaurantId) {
-      query = query.eq('restaurant_id', restaurantId);
-    }
-    
-    const { data, error } = await query.maybeSingle();
+      .eq('name', name)
+      .single();
     
     if (error) {
       if (error.code === 'PGRST116') { // No rows returned
@@ -49,16 +36,10 @@ export const allergensService = {
     return data?.id || null;
   },
   
-  async createAllergen(name: string, restaurantId?: number): Promise<DbAllergen> {
-    // Create allergen with restaurant_id if provided
-    const newAllergen = { 
-      name,
-      restaurant_id: restaurantId 
-    };
-    
+  async createAllergen(name: string): Promise<DbAllergen> {
     const { data, error } = await supabase
       .from('allergens')
-      .insert(newAllergen)
+      .insert({ name })
       .select()
       .single();
     

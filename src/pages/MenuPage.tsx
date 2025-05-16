@@ -9,8 +9,6 @@ import MenuItem from "@/components/MenuItem";
 import RestaurantInfo from "@/components/RestaurantInfo";
 import ZoomableImage from "@/components/ZoomableImage";
 import Gallery from "@/components/Gallery";
-import { useParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 
 // Define a global window object with menu context for access from other components
 declare global {
@@ -21,11 +19,7 @@ declare global {
   }
 }
 
-interface MenuPageProps {
-  restaurantId?: number;
-}
-
-const MenuPage = ({ restaurantId }: MenuPageProps) => {
+const MenuPage = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -40,43 +34,10 @@ const MenuPage = ({ restaurantId }: MenuPageProps) => {
     logo: "/placeholder.svg"
   });
   
-  // Get the subdomain from URL parameters
-  const { subdomain } = useParams<{ subdomain: string }>();
-  const [fetchedRestaurantId, setFetchedRestaurantId] = useState<number | null>(null);
-  
-  // Fetch restaurant ID if not provided
-  useEffect(() => {
-    const fetchRestaurantId = async () => {
-      if (!restaurantId && subdomain) {
-        try {
-          const { data, error } = await supabase
-            .from('restaurants')
-            .select('id')
-            .eq('subdomain', subdomain)
-            .single();
-          
-          if (error) {
-            console.error('Error fetching restaurant:', error);
-          } else {
-            setFetchedRestaurantId(data.id);
-          }
-        } catch (error) {
-          console.error('Error fetching restaurant:', error);
-        }
-      }
-    };
-    
-    fetchRestaurantId();
-  }, [restaurantId, subdomain]);
-  
-  // Use the provided restaurant ID or the fetched one
-  const effectiveRestaurantId = restaurantId || fetchedRestaurantId;
-  
   // Fetch menu data from Supabase
   const { data, isLoading, error } = useQuery({
-    queryKey: ['menuData', effectiveRestaurantId],
-    queryFn: () => loadMenuData(effectiveRestaurantId),
-    enabled: !!effectiveRestaurantId,
+    queryKey: ['menuData'],
+    queryFn: loadMenuData
   });
   
   useEffect(() => {
@@ -109,7 +70,7 @@ const MenuPage = ({ restaurantId }: MenuPageProps) => {
     return true;
   });
 
-  if (isLoading || (!data && effectiveRestaurantId)) {
+  if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="mb-8 w-32 h-32 relative">
@@ -128,7 +89,7 @@ const MenuPage = ({ restaurantId }: MenuPageProps) => {
     );
   }
 
-  if (error || (!data && !isLoading)) {
+  if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
