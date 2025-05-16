@@ -1,5 +1,5 @@
 
-import React from 'react';  // Aggiunto import esplicito di React
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -22,9 +22,15 @@ const themeScriptTag = document.createElement('script');
 themeScriptTag.innerHTML = themeScript;
 document.head.appendChild(themeScriptTag);
 
-// Utilizziamo React.StrictMode per avvolgere l'App
-createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const rootElement = document.getElementById("root");
+
+// Add safeguard to check if root element exists
+if (!rootElement) {
+  console.error("Root element not found");
+} else {
+  createRoot(rootElement).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
