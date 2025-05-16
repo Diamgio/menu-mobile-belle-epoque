@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
@@ -35,8 +34,12 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Utilizziamo React.StrictMode per avvolgere l'App
-createRoot(document.getElementById("root")!).render(
+// Create root and render app with explicit React import
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Root element not found");
+
+const root = createRoot(rootElement);
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

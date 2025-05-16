@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,9 +21,9 @@ const queryClient = new QueryClient();
 
 // Explicitly defined as React component
 const App: React.FC = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
   
-  useEffect(() => {
+  React.useEffect(() => {
     // Handle online/offline events
     const handleOnline = () => {
       setIsOnline(true);
@@ -45,29 +45,31 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <GalleryProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AuthProvider>
-                <Routes>
-                  <Route path="/" element={<MenuPage />} />
-                  <Route path="/admin" element={<Login />} />
-                  <Route element={<ProtectedRoute />}>
-                    <Route path="/admin/dashboard" element={<Dashboard />} />
-                  </Route>
-                  <Route path="/home" element={<Index />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AuthProvider>
-            </BrowserRouter>
-          </GalleryProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <React.StrictMode>
+      <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <GalleryProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AuthProvider>
+                  <Routes>
+                    <Route path="/" element={<MenuPage />} />
+                    <Route path="/admin" element={<Login />} />
+                    <Route element={<ProtectedRoute />}>
+                      <Route path="/admin/dashboard" element={<Dashboard />} />
+                    </Route>
+                    <Route path="/home" element={<Index />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AuthProvider>
+              </BrowserRouter>
+            </GalleryProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </React.StrictMode>
   );
 };
 
