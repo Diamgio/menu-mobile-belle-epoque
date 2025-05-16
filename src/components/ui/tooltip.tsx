@@ -12,7 +12,7 @@ const TooltipProvider = React.forwardRef<
 >(({ children, ...props }, ref) => {
   return <TooltipPrimitive.Provider {...props}>{children}</TooltipPrimitive.Provider>
 })
-TooltipProvider.displayName = "TooltipProvider"
+TooltipProvider.displayName = TooltipPrimitive.Provider.displayName
 
 const Tooltip = TooltipPrimitive.Root
 
