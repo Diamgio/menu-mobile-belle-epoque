@@ -47,20 +47,46 @@ export const useRestaurantMethods = () => {
       if (!currentSession) {
         throw new Error("Sessione non valida. Effettua il login.");
       }
+
+      console.log("Creating restaurant with session:", currentSession.access_token.substring(0, 10) + "...");
       
-      // Call our edge function to create the restaurant using the service role
-      const response = await supabase.functions.invoke('create-restaurant', {
-        body: { name, subdomain },
-        headers: {
-          Authorization: `Bearer ${currentSession.access_token}`
+      // Implement retry logic in case of token propagation issues
+      const maxRetries = 3;
+      let retryCount = 0;
+      let response;
+      
+      while (retryCount < maxRetries) {
+        try {
+          // Call our edge function to create the restaurant using the service role
+          response = await supabase.functions.invoke('create-restaurant', {
+            body: { name, subdomain },
+            headers: {
+              Authorization: `Bearer ${currentSession.access_token}`
+            }
+          });
+          
+          // If successful, break out of retry loop
+          if (!response.error) break;
+          
+          console.log(`Retry ${retryCount + 1}/${maxRetries}: Failed with error:`, response.error);
+          retryCount++;
+          
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (invokeError) {
+          console.error(`Retry ${retryCount + 1}/${maxRetries}: Exception:`, invokeError);
+          retryCount++;
+          
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
-      });
+      }
       
-      if (response.error) {
+      if (response?.error) {
         throw new Error(response.error.message || "Errore durante la creazione del ristorante");
       }
       
-      const data = response.data;
+      const data = response?.data;
       
       // Reload restaurants to include the new one
       await loadRestaurants();

@@ -80,12 +80,16 @@ const Login = () => {
     setIsLoading(true);
     
     try {
+      // Log in first to ensure we have a valid session
+      const { error: signInError } = await signIn(email, password);
+      if (signInError) throw new Error("Errore durante il login dopo la registrazione");
+      
+      // Add a delay to ensure the authentication token has propagated
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Create the restaurant
       const restaurant = await createRestaurant(restaurantName, subdomain);
       if (!restaurant) throw new Error("Impossibile creare il ristorante");
-      
-      // Log the user in
-      await signIn(email, password);
       
       toast({
         title: "Registrazione completata",
