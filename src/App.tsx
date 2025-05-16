@@ -15,34 +15,42 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
-// Create QueryClient outside the component
+// Create a new QueryClient instance
 const queryClient = new QueryClient();
 
-// Explicitly defined as React component
-const App: React.FC = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
-        <GalleryProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AuthProvider>
-              <Routes>
-                <Route path="/" element={<MenuPage />} />
-                <Route path="/admin" element={<Login />} />
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/admin/dashboard" element={<Dashboard />} />
-                </Route>
-                <Route path="/home" element={<Index />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AuthProvider>
-          </BrowserRouter>
-        </GalleryProvider>
-      </ThemeProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App: React.FC = () => {
+  // Ensure React is fully initialized before rendering
+  React.useEffect(() => {
+    console.log("App component mounted");
+  }, []);
+
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
+            <GalleryProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AuthProvider>
+                  <Routes>
+                    <Route path="/" element={<MenuPage />} />
+                    <Route path="/admin" element={<Login />} />
+                    <Route element={<ProtectedRoute />}>
+                      <Route path="/admin/dashboard" element={<Dashboard />} />
+                    </Route>
+                    <Route path="/home" element={<Index />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AuthProvider>
+              </BrowserRouter>
+            </GalleryProvider>
+          </ThemeProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+};
 
 export default App;

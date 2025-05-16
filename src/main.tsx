@@ -22,17 +22,20 @@ const themeScriptTag = document.createElement('script');
 themeScriptTag.innerHTML = themeScript;
 document.head.appendChild(themeScriptTag);
 
-const rootElement = document.getElementById("root");
-
-// Add safeguard to check if root element exists
-if (!rootElement) {
-  console.error("Root element not found");
-} else {
-  const root = createRoot(rootElement);
+// Make sure React is loaded before mounting
+document.addEventListener('DOMContentLoaded', () => {
+  const rootElement = document.getElementById("root");
   
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-}
+  // Add safeguard to check if root element exists
+  if (!rootElement) {
+    console.error("Root element not found");
+  } else {
+    const root = createRoot(rootElement);
+    
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+  }
+});
