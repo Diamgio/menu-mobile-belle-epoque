@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const {
     restaurants,
+    setRestaurants,
     currentRestaurant,
     setCurrentRestaurant,
     loadRestaurants,
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const {
     subscription,
+    setSubscription,
     checkSubscription,
     createSubscription,
     manageSubscription

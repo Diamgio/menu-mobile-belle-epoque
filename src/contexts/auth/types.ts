@@ -31,7 +31,7 @@ export type AuthContextType = {
   restaurants: Restaurant[];
   currentRestaurant: Restaurant | null;
   setCurrentRestaurant: (restaurant: Restaurant | null) => void;
-  loadRestaurants: () => Promise<void>;
+  loadRestaurants: () => Promise<Restaurant[] | void>;
   subscription: Subscription | null;
   checkSubscription: (restaurantId: number) => Promise<void>;
   createSubscription: (restaurantId: number) => Promise<string | null>;
