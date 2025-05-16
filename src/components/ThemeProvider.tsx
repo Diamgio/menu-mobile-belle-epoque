@@ -1,4 +1,7 @@
 
+// Add "use client" directive to ensure React is available
+"use client"
+
 import * as React from "react"
 
 type Theme = "dark" | "light" | "system"
