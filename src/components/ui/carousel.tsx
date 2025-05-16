@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
@@ -17,6 +18,7 @@ type CarouselProps = {
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
+  onApiChange?: (api: CarouselApi | null) => void
 }
 
 type CarouselContextProps = {
@@ -49,6 +51,7 @@ const Carousel = React.forwardRef<
       orientation = "horizontal",
       opts,
       setApi,
+      onApiChange,
       plugins,
       className,
       children,
@@ -105,6 +108,18 @@ const Carousel = React.forwardRef<
     }, [api, setApi])
 
     React.useEffect(() => {
+      if (api && onApiChange) {
+        onApiChange(api);
+      }
+      
+      return () => {
+        if (onApiChange) {
+          onApiChange(null);
+        }
+      };
+    }, [api, onApiChange]);
+
+    React.useEffect(() => {
       if (!api) {
         return
       }
@@ -114,7 +129,7 @@ const Carousel = React.forwardRef<
       api.on("select", onSelect)
 
       return () => {
-        api?.off("select", onSelect)
+        api.off("select", onSelect)
       }
     }, [api, onSelect])
 
@@ -130,6 +145,7 @@ const Carousel = React.forwardRef<
           scrollNext,
           canScrollPrev,
           canScrollNext,
+          onApiChange,
         }}
       >
         <div

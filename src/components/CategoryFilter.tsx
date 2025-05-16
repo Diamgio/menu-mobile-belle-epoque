@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import type { CarouselApi } from "@/components/ui/carousel";
 
@@ -15,7 +15,7 @@ const CategoryFilter = ({
   activeCategory,
   onSelectCategory,
 }: CategoryFilterProps) => {
-  const [api, setApi] = useRef<CarouselApi>();
+  const [api, setApi] = useState<CarouselApi | null>(null);
   
   // When active category changes, scroll to it
   useEffect(() => {
@@ -37,7 +37,7 @@ const CategoryFilter = ({
           loop: false,
           dragFree: true,
         }}
-        setApi={setApi}
+        onApiChange={setApi}
         className="w-full"
       >
         <CarouselContent className="px-4 py-3 -ml-4">
