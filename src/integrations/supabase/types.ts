@@ -14,36 +14,58 @@ export type Database = {
           icon: string | null
           id: number
           name: string
+          restaurant_id: number | null
         }
         Insert: {
           icon?: string | null
           id?: number
           name: string
+          restaurant_id?: number | null
         }
         Update: {
           icon?: string | null
           id?: number
           name?: string
+          restaurant_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "allergens_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
           id: number
           name: string
           order_index: number | null
+          restaurant_id: number | null
         }
         Insert: {
           id?: number
           name: string
           order_index?: number | null
+          restaurant_id?: number | null
         }
         Update: {
           id?: number
           name?: string
           order_index?: number | null
+          restaurant_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dish_allergens: {
         Row: {
@@ -83,6 +105,7 @@ export type Database = {
           image_url: string | null
           name: string
           price: number | null
+          restaurant_id: number | null
         }
         Insert: {
           category_id?: number | null
@@ -91,6 +114,7 @@ export type Database = {
           image_url?: string | null
           name: string
           price?: number | null
+          restaurant_id?: number | null
         }
         Update: {
           category_id?: number | null
@@ -99,6 +123,7 @@ export type Database = {
           image_url?: string | null
           name?: string
           price?: number | null
+          restaurant_id?: number | null
         }
         Relationships: [
           {
@@ -108,7 +133,44 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "dishes_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      restaurants: {
+        Row: {
+          created_at: string | null
+          id: number
+          logo_url: string | null
+          name: string
+          subdomain: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          logo_url?: string | null
+          name: string
+          subdomain: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          logo_url?: string | null
+          name?: string
+          subdomain?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       settings: {
         Row: {
@@ -120,6 +182,7 @@ export type Database = {
           opening_hours: Json | null
           other_social: string | null
           phone: string | null
+          restaurant_id: number | null
           restaurant_name: string | null
         }
         Insert: {
@@ -131,6 +194,7 @@ export type Database = {
           opening_hours?: Json | null
           other_social?: string | null
           phone?: string | null
+          restaurant_id?: number | null
           restaurant_name?: string | null
         }
         Update: {
@@ -142,9 +206,59 @@ export type Database = {
           opening_hours?: Json | null
           other_social?: string | null
           phone?: string | null
+          restaurant_id?: number | null
           restaurant_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "settings_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          current_period_end: string | null
+          id: number
+          restaurant_id: number | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end?: string | null
+          id?: number
+          restaurant_id?: number | null
+          status: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string | null
+          id?: number
+          restaurant_id?: number | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

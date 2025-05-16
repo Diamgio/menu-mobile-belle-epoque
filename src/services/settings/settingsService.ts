@@ -1,16 +1,23 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { DbSettings } from "../types";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Restaurant settings service
 export const settingsService = {
-  async getSettings(): Promise<DbSettings | null> {
-    const { data, error } = await supabase
+  async getSettings(restaurantId?: number): Promise<DbSettings | null> {
+    let query = supabase
       .from('settings')
       .select('*')
       .order('id')
-      .limit(1)
-      .single();
+      .limit(1);
+    
+    // Filter by restaurant if ID is provided
+    if (restaurantId) {
+      query = query.eq('restaurant_id', restaurantId);
+    }
+    
+    const { data, error } = await query.maybeSingle();
     
     if (error) {
       if (error.code === 'PGRST116') { // No rows returned
@@ -23,15 +30,30 @@ export const settingsService = {
     return data;
   },
   
-  async saveSettings(settings: Omit<DbSettings, 'id'>): Promise<DbSettings> {
-    // Check if we have settings already
-    const existing = await this.getSettings().catch(() => null);
+  async saveSettings(settings: Omit<DbSettings, 'id'>, restaurantId?: number): Promise<DbSettings> {
+    // Check if we have settings already for this restaurant
+    let findQuery = supabase
+      .from('settings')
+      .select('id');
+    
+    // Filter by restaurant if ID is provided
+    if (restaurantId) {
+      findQuery = findQuery.eq('restaurant_id', restaurantId);
+    }
+    
+    const { data: existing } = await findQuery.maybeSingle();
+    
+    // Add restaurant_id to settings if provided
+    const settingsToSave: Omit<DbSettings, 'id'> = { ...settings };
+    if (restaurantId && !settingsToSave.restaurant_id) {
+      settingsToSave.restaurant_id = restaurantId;
+    }
     
     if (existing) {
       // Update existing
       const { data, error } = await supabase
         .from('settings')
-        .update(settings)
+        .update(settingsToSave)
         .eq('id', existing.id)
         .select()
         .single();
@@ -50,7 +72,7 @@ export const settingsService = {
       // Create new
       const { data, error } = await supabase
         .from('settings')
-        .insert(settings)
+        .insert(settingsToSave)
         .select()
         .single();
       

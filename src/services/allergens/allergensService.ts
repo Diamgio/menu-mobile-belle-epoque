@@ -1,14 +1,22 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { DbAllergen } from "../types";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Allergens service
 export const allergensService = {
-  async getAll(): Promise<DbAllergen[]> {
-    const { data, error } = await supabase
+  async getAll(restaurantId?: number): Promise<DbAllergen[]> {
+    let query = supabase
       .from('allergens')
       .select('*')
       .order('name');
+    
+    // Filter by restaurant if ID is provided
+    if (restaurantId) {
+      query = query.eq('restaurant_id', restaurantId);
+    }
+    
+    const { data, error } = await query;
     
     if (error) {
       console.error('Error fetching allergens:', error);
@@ -18,12 +26,18 @@ export const allergensService = {
     return data || [];
   },
   
-  async getAllergenIdByName(name: string): Promise<number | null> {
-    const { data, error } = await supabase
+  async getAllergenIdByName(name: string, restaurantId?: number): Promise<number | null> {
+    let query = supabase
       .from('allergens')
       .select('id')
-      .eq('name', name)
-      .single();
+      .eq('name', name);
+    
+    // Filter by restaurant if ID is provided
+    if (restaurantId) {
+      query = query.eq('restaurant_id', restaurantId);
+    }
+    
+    const { data, error } = await query.maybeSingle();
     
     if (error) {
       if (error.code === 'PGRST116') { // No rows returned
@@ -36,10 +50,17 @@ export const allergensService = {
     return data?.id || null;
   },
   
-  async createAllergen(name: string): Promise<DbAllergen> {
+  async createAllergen(name: string, restaurantId?: number): Promise<DbAllergen> {
+    // Create allergen with restaurant_id if provided
+    const newAllergen: Partial<DbAllergen> = { name };
+    
+    if (restaurantId) {
+      newAllergen.restaurant_id = restaurantId;
+    }
+    
     const { data, error } = await supabase
       .from('allergens')
-      .insert({ name })
+      .insert(newAllergen)
       .select()
       .single();
     

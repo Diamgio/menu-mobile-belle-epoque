@@ -1,13 +1,19 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { DbDish } from "../types";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Dishes service
 export const dishesService = {
-  async getAll(): Promise<DbDish[]> {
-    const { data, error } = await supabase
-      .from('dishes')
-      .select('*');
+  async getAll(restaurantId?: number): Promise<DbDish[]> {
+    let query = supabase.from('dishes').select('*');
+    
+    // Filter by restaurant if ID is provided
+    if (restaurantId) {
+      query = query.eq('restaurant_id', restaurantId);
+    }
+    
+    const { data, error } = await query;
     
     if (error) {
       console.error('Error fetching dishes:', error);

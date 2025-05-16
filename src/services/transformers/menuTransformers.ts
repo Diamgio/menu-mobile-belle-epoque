@@ -5,6 +5,7 @@ import { DbDish, DbSettings } from "../types";
 import { dishesService } from "../dishes/dishesService";
 import { categoriesService } from "../categories/categoriesService";
 import { allergensService } from "../allergens/allergensService";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Data transformation functions
 export async function transformDbDishToMenuItem(dbDish: DbDish): Promise<MenuItem> {
@@ -29,22 +30,41 @@ export async function transformDbDishToMenuItem(dbDish: DbDish): Promise<MenuIte
   };
 }
 
-export async function transformMenuItemToDbDish(menuItem: Omit<MenuItem, "id">, existingId?: string): Promise<{ dish: Omit<DbDish, "id"> | DbDish, allergenIds: number[] }> {
+export async function transformMenuItemToDbDish(
+  menuItem: Omit<MenuItem, "id">, 
+  existingId?: string,
+  restaurantId?: number
+): Promise<{ dish: Omit<DbDish, "id"> | DbDish, allergenIds: number[] }> {
+  let effectiveRestaurantId = restaurantId;
+  
+  // If no restaurant ID was provided, try to get it from the current restaurant
+  if (!effectiveRestaurantId) {
+    try {
+      // This is a bit of a hack since we're outside React and can't use hooks directly
+      const authContext = (window as any).__authContext;
+      if (authContext && authContext.currentRestaurant) {
+        effectiveRestaurantId = authContext.currentRestaurant.id;
+      }
+    } catch (error) {
+      console.log("No auth context available");
+    }
+  }
+  
   // Get or create category
-  let categoryId = await categoriesService.getCategoryIdByName(menuItem.category);
+  let categoryId = await categoriesService.getCategoryIdByName(menuItem.category, effectiveRestaurantId);
   
   if (categoryId === null) {
-    const newCategory = await categoriesService.createCategory(menuItem.category);
+    const newCategory = await categoriesService.createCategory(menuItem.category, effectiveRestaurantId);
     categoryId = newCategory.id;
   }
   
   // Handle allergens
   const allergenIds = await Promise.all(
     menuItem.allergens.map(async (allergenName) => {
-      let allergenId = await allergensService.getAllergenIdByName(allergenName);
+      let allergenId = await allergensService.getAllergenIdByName(allergenName, effectiveRestaurantId);
       
       if (allergenId === null) {
-        const newAllergen = await allergensService.createAllergen(allergenName);
+        const newAllergen = await allergensService.createAllergen(allergenName, effectiveRestaurantId);
         allergenId = newAllergen.id;
       }
       
@@ -59,6 +79,11 @@ export async function transformMenuItemToDbDish(menuItem: Omit<MenuItem, "id">, 
     category_id: categoryId,
     image_url: menuItem.image !== "/placeholder.svg" ? menuItem.image : null
   };
+  
+  // Add restaurant_id if provided
+  if (effectiveRestaurantId) {
+    dish.restaurant_id = effectiveRestaurantId;
+  }
   
   if (existingId) {
     dish.id = parseInt(existingId, 10);
@@ -97,8 +122,26 @@ export async function transformDbSettingsToRestaurantInfo(dbSettings: DbSettings
   };
 }
 
-export async function transformRestaurantInfoToDbSettings(info: RestaurantInfo): Promise<Omit<DbSettings, "id">> {
-  return {
+export async function transformRestaurantInfoToDbSettings(
+  info: RestaurantInfo,
+  restaurantId?: number
+): Promise<Omit<DbSettings, "id">> {
+  let effectiveRestaurantId = restaurantId;
+  
+  // If no restaurant ID was provided, try to get it from the current restaurant
+  if (!effectiveRestaurantId) {
+    try {
+      // This is a bit of a hack since we're outside React and can't use hooks directly
+      const authContext = (window as any).__authContext;
+      if (authContext && authContext.currentRestaurant) {
+        effectiveRestaurantId = authContext.currentRestaurant.id;
+      }
+    } catch (error) {
+      console.log("No auth context available");
+    }
+  }
+  
+  const settings: Omit<DbSettings, "id"> = {
     restaurant_name: info.name,
     address: info.address,
     phone: info.phone,
@@ -106,6 +149,9 @@ export async function transformRestaurantInfoToDbSettings(info: RestaurantInfo):
     facebook_url: info.socialLinks.facebook || null,
     instagram_url: info.socialLinks.instagram || null,
     other_social: null,
-    logo_url: info.logo || null
+    logo_url: info.logo || null,
+    restaurant_id: effectiveRestaurantId
   };
+  
+  return settings;
 }

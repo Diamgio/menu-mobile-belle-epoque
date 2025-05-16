@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 const ProtectedRoute = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, restaurants } = useAuth();
   
   if (loading) {
     return (
@@ -18,6 +18,9 @@ const ProtectedRoute = () => {
   if (!user) {
     return <Navigate to="/admin" replace />;
   }
+  
+  // If user is authenticated but has no restaurants, we need to let them create one
+  // This will be handled by the Dashboard component itself
   
   return <Outlet />;
 };
