@@ -24,10 +24,15 @@ export function ThemeProvider({
   storageKey = "restaurant-menu-theme",
   ...props
 }: ThemeProviderProps) {
-  // Ensure we're safely accessing localStorage only in browser context
   const [theme, setTheme] = React.useState<Theme>(() => {
-    if (typeof window === "undefined") return defaultTheme
-    return (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    try {
+      if (typeof window === "undefined") return defaultTheme
+      const storedTheme = localStorage.getItem(storageKey) as Theme
+      return storedTheme || defaultTheme
+    } catch (e) {
+      console.error("Error accessing localStorage:", e)
+      return defaultTheme
+    }
   })
 
   React.useEffect(() => {

@@ -4,20 +4,19 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Ensure React is properly initialized before using it
-// Get the root element directly
+// Get the root element immediately without any delay
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   console.error("Root element not found");
 } else {
-  // Create root and render the app
+  // Create root and render the app immediately
   const root = createRoot(rootElement);
   
-  // Inject React into the global scope to ensure it's available everywhere
+  // Make sure React is defined globally to avoid multiple instances
   window.React = React;
   
-  // Render the app with StrictMode to catch potential issues
+  // Render without any delay
   root.render(
     <React.StrictMode>
       <App />
