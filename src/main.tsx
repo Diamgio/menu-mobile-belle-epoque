@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -22,14 +22,16 @@ const themeScriptTag = document.createElement('script');
 themeScriptTag.innerHTML = themeScript;
 document.head.appendChild(themeScriptTag);
 
-// Create root immediately to ensure React is initialized
+// Make sure React is properly initialized before rendering
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   console.error("Root element not found");
 } else {
+  // Create root explicitly first to ensure React is initialized
   const root = createRoot(rootElement);
   
+  // Render with React.StrictMode to catch potential issues
   root.render(
     <React.StrictMode>
       <App />
