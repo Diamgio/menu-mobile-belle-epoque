@@ -22,16 +22,14 @@ const themeScriptTag = document.createElement('script');
 themeScriptTag.innerHTML = themeScript;
 document.head.appendChild(themeScriptTag);
 
-// Make sure React is properly initialized before rendering
+// Initialize React immediately
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   console.error("Root element not found");
 } else {
-  // Create root explicitly first to ensure React is initialized
   const root = createRoot(rootElement);
   
-  // Render with React.StrictMode to catch potential issues
   root.render(
     <React.StrictMode>
       <App />

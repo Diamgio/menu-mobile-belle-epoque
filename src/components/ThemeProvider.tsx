@@ -21,7 +21,7 @@ const ThemeProviderContext = React.createContext<ThemeProviderState | undefined>
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "restaurant-menu-theme", // Changed to match the key in main.tsx
+  storageKey = "restaurant-menu-theme",
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = React.useState<Theme>(
