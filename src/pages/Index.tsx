@@ -1,7 +1,7 @@
 
 "use client"
 
-import React from 'react';
+import * as React from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 // Add debug logging

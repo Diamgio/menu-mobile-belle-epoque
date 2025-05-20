@@ -4,11 +4,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Make sure React is properly initialized and globally available
-if (typeof window !== 'undefined') {
-  window.React = React;
-}
-
+// Ensure React is correctly initialized with proper namespace
 console.log("React version:", React.version);
 console.log("Initializing React application");
 
@@ -22,7 +18,7 @@ if (!rootElement) {
     // Create root and render the app
     const root = createRoot(rootElement);
     
-    // Render the app
+    // Render the app - use the default React import
     root.render(
       <React.StrictMode>
         <App />

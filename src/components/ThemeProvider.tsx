@@ -1,7 +1,7 @@
 
 "use client"
 
-import React from "react"
+import * as React from 'react'
 
 type Theme = "dark" | "light" | "system"
 
@@ -24,8 +24,9 @@ export function ThemeProvider({
   storageKey = "restaurant-menu-theme",
   ...props
 }: ThemeProviderProps) {
-  console.log("ThemeProvider initializing, React available:", !!React);
+  console.log("ThemeProvider initializing with React:", React);
   
+  // Use the explicit React namespace to avoid any conflicts
   const [theme, setTheme] = React.useState<Theme>(() => {
     // Safe localStorage access with try-catch
     try {
