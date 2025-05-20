@@ -19,7 +19,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-  // Component initialization
+  // Component initialization with logging
   React.useEffect(() => {
     console.log("App component mounted");
   }, []);

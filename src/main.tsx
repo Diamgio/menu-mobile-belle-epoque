@@ -4,6 +4,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
+// Make sure React is initialized first
+console.log("Initializing React application");
+
 // Get the root element immediately without any delay
 const rootElement = document.getElementById("root");
 
