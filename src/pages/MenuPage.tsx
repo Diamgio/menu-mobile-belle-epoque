@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
@@ -72,7 +71,7 @@ const MenuPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
         <div className="mb-8 w-32 h-32 relative">
           <ZoomableImage
             src={restaurantInfo.logo}
@@ -81,7 +80,7 @@ const MenuPage = () => {
             showLoadingPlaceholder={false}
           />
         </div>
-        <div className="text-center">
+        <div className="text-center px-4">
           <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
           <p className="text-gray-500 dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
         </div>
@@ -91,8 +90,8 @@ const MenuPage = () => {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
+        <div className="text-center px-4">
           <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
           <p className="text-gray-500 dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
         </div>
@@ -101,15 +100,15 @@ const MenuPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative">
-      <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm">
-        <div className="flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
+      <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm w-full">
+        <div className="flex items-center justify-center max-w-md mx-auto">
           <h1 className="text-xl font-bold dark:text-white">{restaurantInfo.name}</h1>
         </div>
       </div>
 
-      <div className="sticky top-[3.25rem] z-20 bg-white dark:bg-gray-800 shadow-sm px-2">
-        <div className="flex items-center justify-between py-2">
+      <div className="sticky top-[3.25rem] z-20 bg-white dark:bg-gray-800 shadow-sm px-2 w-full">
+        <div className="flex items-center justify-between py-2 max-w-md mx-auto overflow-x-auto">
           <CategoryFilter
             categories={categories}
             activeCategory={activeCategory}
@@ -118,7 +117,7 @@ const MenuPage = () => {
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4 container max-w-md mx-auto">
         {filteredItems.map((item, index) => (
           <MenuItem
             key={item.id}
