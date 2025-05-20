@@ -4,9 +4,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Make sure React is available globally and initialized
+// Explicitly define React globally to ensure it's available
 window.React = React;
 
+console.log("React version:", React.version);
 console.log("Initializing React application");
 
 // Get the root element

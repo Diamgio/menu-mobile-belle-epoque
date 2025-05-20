@@ -4,6 +4,9 @@
 import * as React from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
+// Verify React is available
+console.log("Index initializing with React:", !!React);
+
 const Index: React.FC = () => {
   // Add initialization logging
   React.useEffect(() => {
