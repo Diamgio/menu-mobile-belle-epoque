@@ -5,6 +5,11 @@ import * as React from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index: React.FC = () => {
+  // Add initialization logging
+  React.useEffect(() => {
+    console.log("Index page mounted");
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground w-full">
       <div className="text-center space-y-4 px-4 sm:px-6 w-full max-w-md mx-auto">

@@ -24,11 +24,15 @@ export function ThemeProvider({
   storageKey = "restaurant-menu-theme",
   ...props
 }: ThemeProviderProps) {
+  // Ensure React is properly imported and available
   const [theme, setTheme] = React.useState<Theme>(() => {
+    // Use a try-catch to handle any localStorage issues
     try {
-      if (typeof window === "undefined") return defaultTheme
-      const storedTheme = localStorage.getItem(storageKey) as Theme
-      return storedTheme || defaultTheme
+      if (typeof window !== "undefined" && window.localStorage) {
+        const storedTheme = localStorage.getItem(storageKey) as Theme
+        return storedTheme || defaultTheme
+      }
+      return defaultTheme
     } catch (e) {
       console.error("Error accessing localStorage:", e)
       return defaultTheme
@@ -36,6 +40,8 @@ export function ThemeProvider({
   })
 
   React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    
     const root = window.document.documentElement
 
     root.classList.remove("light", "dark")
@@ -55,8 +61,15 @@ export function ThemeProvider({
     () => ({
       theme,
       setTheme: (theme: Theme) => {
-        localStorage.setItem(storageKey, theme)
-        setTheme(theme)
+        try {
+          if (typeof window !== "undefined" && window.localStorage) {
+            localStorage.setItem(storageKey, theme);
+          }
+          setTheme(theme);
+        } catch (e) {
+          console.error("Error setting theme:", e);
+          setTheme(theme);
+        }
       },
     }),
     [theme, storageKey]
