@@ -1,7 +1,7 @@
 
 "use client"
 
-import * as React from 'react'
+import React from 'react';
 
 type Theme = "dark" | "light" | "system"
 
@@ -24,9 +24,9 @@ export function ThemeProvider({
   storageKey = "restaurant-menu-theme",
   ...props
 }: ThemeProviderProps) {
-  console.log("ThemeProvider initializing with React:", React);
+  console.log("ThemeProvider initializing with React:", !!React);
   
-  // Use the explicit React namespace to avoid any conflicts
+  // This is where the error was occurring - ensure React is properly defined before using useState
   const [theme, setTheme] = React.useState<Theme>(() => {
     // Safe localStorage access with try-catch
     try {

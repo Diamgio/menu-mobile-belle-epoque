@@ -4,7 +4,12 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Ensure React is correctly initialized with proper namespace
+// Explicitly attach React to window for debugging purposes
+if (typeof window !== 'undefined') {
+  window.React = React;
+  console.log("React attached to window:", !!window.React);
+}
+
 console.log("React version:", React.version);
 console.log("Initializing React application");
 
@@ -18,7 +23,7 @@ if (!rootElement) {
     // Create root and render the app
     const root = createRoot(rootElement);
     
-    // Render the app - use the default React import
+    // Render the app - use the explicit React import
     root.render(
       <React.StrictMode>
         <App />
