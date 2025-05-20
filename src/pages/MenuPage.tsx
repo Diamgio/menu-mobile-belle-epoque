@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
@@ -50,6 +51,12 @@ const MenuPage = () => {
       window.__menuContext = {
         items: data.menuItems
       };
+      
+      console.log("Menu data loaded:", { 
+        itemsCount: data.menuItems.length,
+        categories: data.categories,
+        allergens: data.allergens
+      });
     }
   }, [data]);
 
@@ -66,8 +73,21 @@ const MenuPage = () => {
     if (activeCategory && item.category !== activeCategory) {
       return false;
     }
+    
+    // Filter by excluded allergens
+    if (excludedAllergens.length > 0) {
+      if (item.allergens?.some(allergen => excludedAllergens.includes(allergen))) {
+        return false;
+      }
+    }
+    
     return true;
   });
+
+  const handleCategorySelect = (category: string | null) => {
+    console.log("Category selected:", category);
+    setActiveCategory(category);
+  };
 
   if (isLoading) {
     return (
@@ -107,29 +127,36 @@ const MenuPage = () => {
         </div>
       </div>
 
-      <div className="sticky top-[3.25rem] z-20 bg-white dark:bg-gray-800 shadow-sm px-2 w-full">
-        <div className="flex items-center justify-between py-2 max-w-md mx-auto overflow-x-auto">
-          <CategoryFilter
-            categories={categories}
-            activeCategory={activeCategory}
-            onSelectCategory={setActiveCategory}
-          />
-        </div>
+      <div className="sticky top-[3.25rem] z-20 w-full">
+        <CategoryFilter
+          categories={categories}
+          activeCategory={activeCategory}
+          onSelectCategory={handleCategorySelect}
+        />
       </div>
 
       <div className="p-4 space-y-4 container max-w-md mx-auto">
-        {filteredItems.map((item, index) => (
-          <MenuItem
-            key={item.id}
-            item={item}
-            excludedAllergens={excludedAllergens}
-            itemIndex={index}
-          />
-        ))}
-
-        {filteredItems.length === 0 && (
-          <div className="mt-8 text-center">
-            <p className="text-gray-500 dark:text-gray-400">Nessun piatto trovato</p>
+        {filteredItems.length > 0 ? (
+          filteredItems.map((item, index) => (
+            <MenuItem
+              key={item.id}
+              item={item}
+              excludedAllergens={excludedAllergens}
+              itemIndex={index}
+            />
+          ))
+        ) : (
+          <div className="mt-8 text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <p className="text-gray-500 dark:text-gray-400">
+              {activeCategory 
+                ? `Nessun piatto trovato nella categoria "${activeCategory}"`
+                : "Nessun piatto trovato con i filtri selezionati"}
+            </p>
+            {excludedAllergens.length > 0 && (
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                Hai escluso {excludedAllergens.length} allergeni
+              </p>
+            )}
           </div>
         )}
       </div>
