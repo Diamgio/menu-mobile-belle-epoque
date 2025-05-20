@@ -1,10 +1,7 @@
 
 "use client"
 
-import * as React from "react"
-
-// Explicitly import useState and useContext to ensure they're available
-const { useState, useEffect, createContext, useContext, useMemo } = React;
+import React from "react"
 
 type Theme = "dark" | "light" | "system"
 
@@ -19,7 +16,7 @@ type ThemeProviderState = {
   setTheme: (theme: Theme) => void
 }
 
-const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined)
+const ThemeProviderContext = React.createContext<ThemeProviderState | undefined>(undefined)
 
 export function ThemeProvider({
   children,
@@ -27,8 +24,9 @@ export function ThemeProvider({
   storageKey = "restaurant-menu-theme",
   ...props
 }: ThemeProviderProps) {
-  // Initialize with explicit React hook reference
-  const [theme, setTheme] = useState<Theme>(() => {
+  console.log("ThemeProvider initializing, React available:", !!React);
+  
+  const [theme, setTheme] = React.useState<Theme>(() => {
     // Safe localStorage access with try-catch
     try {
       if (typeof window !== "undefined" && window.localStorage) {
@@ -42,8 +40,7 @@ export function ThemeProvider({
     }
   })
 
-  // Handle theme class application safely with explicit useEffect
-  useEffect(() => {
+  React.useEffect(() => {
     if (typeof window === "undefined") return;
     
     try {
@@ -65,8 +62,7 @@ export function ThemeProvider({
     }
   }, [theme])
 
-  // Create context value with explicit useMemo
-  const value = useMemo(
+  const value = React.useMemo(
     () => ({
       theme,
       setTheme: (theme: Theme) => {
@@ -92,7 +88,7 @@ export function ThemeProvider({
 }
 
 export const useTheme = (): ThemeProviderState => {
-  const context = useContext(ThemeProviderContext)
+  const context = React.useContext(ThemeProviderContext)
 
   if (context === undefined)
     throw new Error("useTheme must be used within a ThemeProvider")

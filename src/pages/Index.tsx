@@ -1,18 +1,18 @@
 
 "use client"
 
-import * as React from 'react';
+import React from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
-// Verify React is available
-console.log("Index initializing with React:", !!React);
+// Add debug logging
+console.log("Index page initializing, React available:", !!React);
 
 const Index: React.FC = () => {
   // Add initialization logging
   React.useEffect(() => {
     console.log("Index page mounted");
     // Verify React is accessible
-    console.log("React available:", !!React);
+    console.log("React available in useEffect:", !!React);
   }, []);
 
   return (

@@ -4,8 +4,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Explicitly define React globally to ensure it's available
-window.React = React;
+// Make sure React is properly initialized and globally available
+if (typeof window !== 'undefined') {
+  window.React = React;
+}
 
 console.log("React version:", React.version);
 console.log("Initializing React application");
