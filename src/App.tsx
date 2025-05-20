@@ -25,31 +25,29 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
-            <GalleryProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <AuthProvider>
-                  <Routes>
-                    <Route path="/" element={<MenuPage />} />
-                    <Route path="/admin" element={<Login />} />
-                    <Route element={<ProtectedRoute />}>
-                      <Route path="/admin/dashboard" element={<Dashboard />} />
-                    </Route>
-                    <Route path="/home" element={<Index />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </AuthProvider>
-              </BrowserRouter>
-            </GalleryProvider>
-          </ThemeProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ThemeProvider defaultTheme="system" storageKey="restaurant-menu-theme">
+          <GalleryProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AuthProvider>
+                <Routes>
+                  <Route path="/" element={<MenuPage />} />
+                  <Route path="/admin" element={<Login />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/admin/dashboard" element={<Dashboard />} />
+                  </Route>
+                  <Route path="/home" element={<Index />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AuthProvider>
+            </BrowserRouter>
+          </GalleryProvider>
+        </ThemeProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 

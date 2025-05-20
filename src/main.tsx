@@ -22,20 +22,24 @@ const themeScriptTag = document.createElement('script');
 themeScriptTag.innerHTML = themeScript;
 document.head.appendChild(themeScriptTag);
 
-// Make sure React is loaded before mounting
+// Ensure the document is fully loaded before attempting to mount
 document.addEventListener('DOMContentLoaded', () => {
+  // Get the root element
   const rootElement = document.getElementById("root");
   
   // Add safeguard to check if root element exists
   if (!rootElement) {
     console.error("Root element not found");
-  } else {
-    const root = createRoot(rootElement);
-    
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    );
+    return; // Exit early if no root element is found
   }
+  
+  // Create a root instance
+  const root = createRoot(rootElement);
+  
+  // Render the App component
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 });
