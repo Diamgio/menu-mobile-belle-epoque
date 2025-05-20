@@ -24,12 +24,12 @@ export function ThemeProvider({
   storageKey = "restaurant-menu-theme",
   ...props
 }: ThemeProviderProps) {
-  // Ensure React is properly imported and available
+  // Initialize React useState with safeguards
   const [theme, setTheme] = React.useState<Theme>(() => {
-    // Use a try-catch to handle any localStorage issues
+    // Safe localStorage access with try-catch
     try {
       if (typeof window !== "undefined" && window.localStorage) {
-        const storedTheme = localStorage.getItem(storageKey) as Theme
+        const storedTheme = window.localStorage.getItem(storageKey) as Theme
         return storedTheme || defaultTheme
       }
       return defaultTheme
@@ -39,31 +39,37 @@ export function ThemeProvider({
     }
   })
 
+  // Handle theme class application safely
   React.useEffect(() => {
     if (typeof window === "undefined") return;
     
-    const root = window.document.documentElement
+    try {
+      const root = window.document.documentElement
 
-    root.classList.remove("light", "dark")
+      root.classList.remove("light", "dark")
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      root.classList.add(systemTheme)
-      return
+      if (theme === "system") {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        root.classList.add(systemTheme)
+        return
+      }
+
+      root.classList.add(theme)
+    } catch (e) {
+      console.error("Error applying theme:", e)
     }
-
-    root.classList.add(theme)
   }, [theme])
 
+  // Create context value with error handling
   const value = React.useMemo(
     () => ({
       theme,
       setTheme: (theme: Theme) => {
         try {
           if (typeof window !== "undefined" && window.localStorage) {
-            localStorage.setItem(storageKey, theme);
+            window.localStorage.setItem(storageKey, theme);
           }
           setTheme(theme);
         } catch (e) {

@@ -8,6 +8,8 @@ const Index: React.FC = () => {
   // Add initialization logging
   React.useEffect(() => {
     console.log("Index page mounted");
+    // Verify React is accessible
+    console.log("React available:", !!React);
   }, []);
 
   return (
