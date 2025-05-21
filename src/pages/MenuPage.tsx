@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
@@ -40,6 +41,35 @@ const MenuPage = () => {
     queryKey: ['menuData'],
     queryFn: loadMenuData
   });
+  
+  // Load cached data when offline
+  useEffect(() => {
+    // Try to load from cache while loading
+    const loadCachedData = () => {
+      const cachedData = localStorage.getItem('menuData');
+      if (cachedData) {
+        try {
+          const parsedData = JSON.parse(cachedData);
+          setMenuItems(parsedData.menuItems);
+          setCategories(parsedData.categories);
+          setAllergens(parsedData.allergens);
+          setRestaurantInfo(parsedData.restaurantInfo);
+          
+          window.__menuContext = {
+            items: parsedData.menuItems
+          };
+          
+          console.log("Loaded menu data from cache while waiting for API");
+        } catch (e) {
+          console.error("Error parsing cached data:", e);
+        }
+      }
+    };
+
+    if (isLoading) {
+      loadCachedData();
+    }
+  }, [isLoading]);
   
   useEffect(() => {
     if (data) {
@@ -98,76 +128,39 @@ const MenuPage = () => {
     setActiveCategory(category);
   };
 
-  if (isLoading) {
-    // Try to load from cache while loading
-    useEffect(() => {
-      const cachedData = localStorage.getItem('menuData');
-      if (cachedData) {
-        try {
-          const parsedData = JSON.parse(cachedData);
-          setMenuItems(parsedData.menuItems);
-          setCategories(parsedData.categories);
-          setAllergens(parsedData.allergens);
-          setRestaurantInfo(parsedData.restaurantInfo);
-          
-          window.__menuContext = {
-            items: parsedData.menuItems
-          };
-          
-          console.log("Loaded menu data from cache while waiting for API");
-        } catch (e) {
-          console.error("Error parsing cached data:", e);
-        }
-      }
-    }, []);
+  // Create UI elements based on loading state
+  const renderContent = () => {
+    if (isLoading && menuItems.length === 0) {
+      return (
+        <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
+          <div className="mb-8 w-32 h-32 relative">
+            <ZoomableImage
+              src={restaurantInfo.logo}
+              alt={restaurantInfo.name}
+              aspectRatio={1}
+              showLoadingPlaceholder={false}
+            />
+          </div>
+          <div className="text-center px-4">
+            <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
+            <p className="text-xl dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
+          <div className="text-center px-4">
+            <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
+            <p className="text-xl dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
+          </div>
+        </div>
+      );
+    }
 
     return (
-      <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
-        <div className="mb-8 w-32 h-32 relative">
-          <ZoomableImage
-            src={restaurantInfo.logo}
-            alt={restaurantInfo.name}
-            aspectRatio={1}
-            showLoadingPlaceholder={false}
-          />
-        </div>
-        <div className="text-center px-4">
-          <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
-          <p className="text-xl dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
-        <div className="text-center px-4">
-          <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
-          <p className="text-xl dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
-      <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm w-full">
-        <div className="flex items-center justify-between max-w-md mx-auto">
-          <div></div>
-          <h1 className="text-xl font-bold dark:text-white">{restaurantInfo.name}</h1>
-          <ThemeToggle />
-        </div>
-      </div>
-
-      <div className="sticky top-[3.25rem] z-20 w-full">
-        <CategoryFilter
-          categories={categories}
-          activeCategory={activeCategory}
-          onSelectCategory={handleCategorySelect}
-        />
-      </div>
-
       <div className="p-4 space-y-4 container max-w-md mx-auto">
         {filteredItems.length > 0 ? (
           filteredItems.map((item, index) => (
@@ -193,6 +186,29 @@ const MenuPage = () => {
           </div>
         )}
       </div>
+    );
+  };
+
+  // Main render - no early returns, all hooks called unconditionally
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
+      <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm w-full">
+        <div className="flex items-center justify-between max-w-md mx-auto">
+          <div></div>
+          <h1 className="text-xl font-bold dark:text-white">{restaurantInfo.name}</h1>
+          <ThemeToggle />
+        </div>
+      </div>
+
+      <div className="sticky top-[3.25rem] z-20 w-full">
+        <CategoryFilter
+          categories={categories}
+          activeCategory={activeCategory}
+          onSelectCategory={handleCategorySelect}
+        />
+      </div>
+
+      {renderContent()}
       
       {/* Floating Allergen Filter Button (left side) */}
       <div className="fixed bottom-4 left-4 z-40">
