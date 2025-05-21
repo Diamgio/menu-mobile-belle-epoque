@@ -1,16 +1,17 @@
 
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
-import { loadMenuData } from "@/services/supabaseService";
+import { useState } from "react";
 import CategoryFilter from "@/components/CategoryFilter";
 import AllergenFilter from "@/components/AllergenFilter";
-import MenuItem from "@/components/MenuItem";
 import RestaurantInfo from "@/components/RestaurantInfo";
-import ZoomableImage from "@/components/ZoomableImage";
 import Gallery from "@/components/Gallery";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import OfflineAlert from "@/components/OfflineAlert";
+import { MenuItem as MenuItemType } from "@/types/menu";
+import LoadingView from "@/components/menu/LoadingView";
+import ErrorView from "@/components/menu/ErrorView";
+import MenuHeader from "@/components/menu/MenuHeader";
+import MenuItemsList from "@/components/menu/MenuItemsList";
+import { useMenuData } from "@/hooks/useMenuData";
+import { useMenuFilters } from "@/hooks/useMenuFilters";
 
 // Define a global window object with menu context for access from other components
 declare global {
@@ -22,106 +23,22 @@ declare global {
 }
 
 const MenuPage = () => {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [allergens, setAllergens] = useState<string[]>([]);
-  const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
-  const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfoType>({
-    name: "Caricamento...",
-    openingHours: "",
-    phone: "",
-    address: "",
-    socialLinks: {},
-    logo: "/placeholder.svg"
-  });
-  
-  // Fetch menu data from Supabase
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['menuData'],
-    queryFn: loadMenuData
-  });
-  
-  // Load cached data when offline
-  useEffect(() => {
-    // Try to load from cache while loading
-    const loadCachedData = () => {
-      const cachedData = localStorage.getItem('menuData');
-      if (cachedData) {
-        try {
-          const parsedData = JSON.parse(cachedData);
-          setMenuItems(parsedData.menuItems);
-          setCategories(parsedData.categories);
-          setAllergens(parsedData.allergens);
-          setRestaurantInfo(parsedData.restaurantInfo);
-          
-          window.__menuContext = {
-            items: parsedData.menuItems
-          };
-          
-          console.log("Loaded menu data from cache while waiting for API");
-        } catch (e) {
-          console.error("Error parsing cached data:", e);
-        }
-      }
-    };
+  const { 
+    menuItems, 
+    categories, 
+    allergens, 
+    restaurantInfo, 
+    isLoading, 
+    error 
+  } = useMenuData();
 
-    if (isLoading) {
-      loadCachedData();
-    }
-  }, [isLoading]);
-  
-  useEffect(() => {
-    if (data) {
-      setMenuItems(data.menuItems);
-      setCategories(data.categories);
-      setAllergens(data.allergens);
-      setRestaurantInfo(data.restaurantInfo);
-      
-      // Make menu items available globally for the ZoomableImage component
-      window.__menuContext = {
-        items: data.menuItems
-      };
-      
-      // Store the menu data in localStorage for offline access
-      try {
-        localStorage.setItem('menuData', JSON.stringify(data));
-        console.log("Menu data cached in localStorage for offline use");
-      } catch (e) {
-        console.error("Error caching menu data:", e);
-      }
-      
-      console.log("Menu data loaded:", { 
-        itemsCount: data.menuItems.length,
-        categories: data.categories,
-        allergens: data.allergens
-      });
-    }
-  }, [data]);
-
-  const handleAllergenChange = (allergen: string) => {
-    setExcludedAllergens((current) =>
-      current.includes(allergen)
-        ? current.filter((a) => a !== allergen)
-        : [...current, allergen]
-    );
-  };
-
-  const filteredItems = menuItems.filter((item) => {
-    // Filter by category if one is selected
-    if (activeCategory && item.category !== activeCategory) {
-      return false;
-    }
-    
-    // Filter by excluded allergens
-    if (excludedAllergens.length > 0) {
-      if (item.allergens?.some(allergen => excludedAllergens.includes(allergen))) {
-        return false;
-      }
-    }
-    
-    return true;
-  });
+  const { 
+    activeCategory, 
+    setActiveCategory, 
+    excludedAllergens, 
+    handleAllergenChange, 
+    filteredItems 
+  } = useMenuFilters(menuItems);
 
   const handleCategorySelect = (category: string | null) => {
     console.log("Category selected:", category);
@@ -132,59 +49,24 @@ const MenuPage = () => {
   const getContentElement = () => {
     if (isLoading && menuItems.length === 0) {
       return (
-        <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
-          <div className="mb-8 w-32 h-32 relative">
-            <ZoomableImage
-              src={restaurantInfo.logo}
-              alt={restaurantInfo.name}
-              aspectRatio={1}
-              showLoadingPlaceholder={false}
-            />
-          </div>
-          <div className="text-center px-4">
-            <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
-            <p className="text-xl dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
-          </div>
-        </div>
+        <LoadingView 
+          logoUrl={restaurantInfo.logo} 
+          restaurantName={restaurantInfo.name} 
+        />
       );
     }
 
     if (error) {
-      return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
-          <div className="text-center px-4">
-            <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
-            <p className="text-xl dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
-          </div>
-        </div>
-      );
+      return <ErrorView />;
     }
 
     return (
       <div className="p-4 space-y-4 container max-w-md mx-auto">
-        {filteredItems.length > 0 ? (
-          filteredItems.map((item, index) => (
-            <MenuItem
-              key={item.id}
-              item={item}
-              excludedAllergens={excludedAllergens}
-              itemIndex={index}
-            />
-          ))
-        ) : (
-          <div className="mt-8 text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <p className="text-lg text-gray-500 dark:text-gray-400">
-              {activeCategory 
-                ? `Nessun piatto trovato nella categoria "${activeCategory}"`
-                : "Nessun piatto trovato con i filtri selezionati"}
-            </p>
-            {excludedAllergens.length > 0 && (
-              <p className="text-base text-gray-400 dark:text-gray-500 mt-2">
-                Hai escluso {excludedAllergens.length} allergeni
-              </p>
-            )}
-          </div>
-        )}
+        <MenuItemsList 
+          items={filteredItems}
+          excludedAllergens={excludedAllergens}
+          activeCategory={activeCategory}
+        />
       </div>
     );
   };
@@ -192,13 +74,7 @@ const MenuPage = () => {
   // Main render - no early returns, all hooks called unconditionally
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
-      <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm w-full">
-        <div className="flex items-center justify-between max-w-md mx-auto">
-          <div></div>
-          <h1 className="text-xl font-bold dark:text-white">{restaurantInfo.name}</h1>
-          <ThemeToggle />
-        </div>
-      </div>
+      <MenuHeader restaurantName={restaurantInfo.name} />
 
       <div className="sticky top-[3.25rem] z-20 w-full">
         <CategoryFilter
