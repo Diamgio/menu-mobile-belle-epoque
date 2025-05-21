@@ -46,11 +46,11 @@ const MenuPage = () => {
   };
 
   // Create content elements based on loading state WITHOUT early returns
-  const getContentElement = () => {
+  const renderContent = () => {
     if (isLoading && menuItems.length === 0) {
       return (
         <LoadingView 
-          logoUrl={restaurantInfo.logo} 
+          logoUrl={restaurantInfo.logo || ""} 
           restaurantName={restaurantInfo.name} 
         />
       );
@@ -84,7 +84,7 @@ const MenuPage = () => {
         />
       </div>
 
-      {getContentElement()}
+      {renderContent()}
       
       {/* Floating Allergen Filter Button (left side) */}
       <div className="fixed bottom-4 left-4 z-40">
