@@ -23,7 +23,9 @@ declare global {
 }
 
 const MenuPage = () => {
-  // Always call hooks at the top level - no conditions
+  // Always call all hooks at the top level of your component
+  console.log("MenuPage rendering");
+  
   const { 
     menuItems, 
     categories, 
@@ -33,6 +35,8 @@ const MenuPage = () => {
     error 
   } = useMenuData();
 
+  console.log("useMenuData hook result:", { menuItemsCount: menuItems.length, isLoading, error });
+
   const { 
     activeCategory, 
     setActiveCategory, 
@@ -41,12 +45,18 @@ const MenuPage = () => {
     filteredItems 
   } = useMenuFilters(menuItems);
 
+  console.log("useMenuFilters hook result:", {
+    activeCategory,
+    excludedAllergens,
+    filteredItemsCount: filteredItems.length
+  });
+
   const handleCategorySelect = (category: string | null) => {
     console.log("Category selected:", category);
     setActiveCategory(category);
   };
 
-  // Move conditional rendering into a function, not affecting hook calls
+  // Move conditional rendering logic to a separate function to avoid breaking hook rules
   const renderContent = () => {
     if (isLoading && menuItems.length === 0) {
       return (
@@ -72,7 +82,7 @@ const MenuPage = () => {
     );
   };
 
-  // Main render - no early returns, all hooks called unconditionally
+  // Main render - always returns the same structure
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
       <MenuHeader restaurantName={restaurantInfo.name} />
