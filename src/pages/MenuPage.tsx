@@ -108,9 +108,10 @@ const MenuPage = () => {
   const safeCategories = Array.isArray(categories) ? categories : [];
   const safeAllergens = Array.isArray(allergens) ? allergens : [];
 
+  // Wrap only the actual JSX rendering in try/catch, not the return statement itself
+  let renderedContent;
   try {
-    // Main render - always returns one structure with no early returns
-    return (
+    renderedContent = (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
         <MenuHeader restaurantName={safeRestaurantInfo.name} />
 
@@ -145,10 +146,13 @@ const MenuPage = () => {
       </div>
     );
   } catch (e) {
-    console.error("Error rendering MenuPage:", e);
+    console.error("Error rendering MenuPage content:", e);
     setHasRenderError(true);
-    return <ErrorView />;
+    renderedContent = <ErrorView />;
   }
+
+  // Always return the rendered content - no conditional returns at the component level
+  return renderedContent;
 };
 
 export default MenuPage;

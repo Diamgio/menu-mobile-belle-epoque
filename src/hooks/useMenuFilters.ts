@@ -35,6 +35,7 @@ export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
     try {
       console.log(`Filtering ${safeMenuItems.length} items with category=${activeCategory}, excludedAllergens=${excludedAllergens.length}`);
       
+      // Always return an array, even if it's empty
       return safeMenuItems.filter((item) => {
         // Skip null/undefined items
         if (!item) return false;
