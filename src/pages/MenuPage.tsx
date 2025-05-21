@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItem as MenuItemType, RestaurantInfo as RestaurantInfoType } from "@/types/menu";
@@ -10,6 +9,7 @@ import RestaurantInfo from "@/components/RestaurantInfo";
 import ZoomableImage from "@/components/ZoomableImage";
 import Gallery from "@/components/Gallery";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import OfflineAlert from "@/components/OfflineAlert";
 
 // Define a global window object with menu context for access from other components
 declare global {
@@ -53,6 +53,14 @@ const MenuPage = () => {
         items: data.menuItems
       };
       
+      // Store the menu data in localStorage for offline access
+      try {
+        localStorage.setItem('menuData', JSON.stringify(data));
+        console.log("Menu data cached in localStorage for offline use");
+      } catch (e) {
+        console.error("Error caching menu data:", e);
+      }
+      
       console.log("Menu data loaded:", { 
         itemsCount: data.menuItems.length,
         categories: data.categories,
@@ -91,6 +99,28 @@ const MenuPage = () => {
   };
 
   if (isLoading) {
+    // Try to load from cache while loading
+    useEffect(() => {
+      const cachedData = localStorage.getItem('menuData');
+      if (cachedData) {
+        try {
+          const parsedData = JSON.parse(cachedData);
+          setMenuItems(parsedData.menuItems);
+          setCategories(parsedData.categories);
+          setAllergens(parsedData.allergens);
+          setRestaurantInfo(parsedData.restaurantInfo);
+          
+          window.__menuContext = {
+            items: parsedData.menuItems
+          };
+          
+          console.log("Loaded menu data from cache while waiting for API");
+        } catch (e) {
+          console.error("Error parsing cached data:", e);
+        }
+      }
+    }, []);
+
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
         <div className="mb-8 w-32 h-32 relative">
@@ -179,6 +209,9 @@ const MenuPage = () => {
       
       {/* Gallery component for image viewing */}
       <Gallery />
+      
+      {/* Offline status alert */}
+      <OfflineAlert />
     </div>
   );
 };

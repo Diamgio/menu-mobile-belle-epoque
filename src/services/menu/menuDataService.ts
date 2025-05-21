@@ -33,6 +33,16 @@ export async function loadMenuData() {
     
     return { menuItems, categories, allergens, restaurantInfo };
   } catch (error) {
+    // If network error, try to load from cache
+    if (!navigator.onLine) {
+      console.log("Device is offline, attempting to load data from cache");
+      const cachedData = localStorage.getItem('menuData');
+      if (cachedData) {
+        console.log("Found cached menu data");
+        return JSON.parse(cachedData);
+      }
+    }
+    
     console.error("Error loading menu data:", error);
     throw error;
   }

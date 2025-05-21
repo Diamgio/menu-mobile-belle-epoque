@@ -3,6 +3,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { registerServiceWorker, checkForAppInstallation } from './pwa/registerSW';
 
 // Explicitly attach React to window for debugging purposes
 if (typeof window !== 'undefined') {
@@ -12,6 +13,12 @@ if (typeof window !== 'undefined') {
 
 console.log("React version:", React.version);
 console.log("Initializing React application");
+
+// Register service worker for PWA functionality
+registerServiceWorker();
+
+// Check if the app can be installed
+checkForAppInstallation();
 
 // Get the root element
 const rootElement = document.getElementById("root");
