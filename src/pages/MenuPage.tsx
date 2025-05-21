@@ -68,48 +68,48 @@ const MenuPage = () => {
     setActiveCategory(category);
   };
 
-  try {
-    // Separate content rendering into a component variable instead of a function
-    let content;
-    
-    if (hasRenderError || error) {
-      content = <ErrorView />;
-    } else if (isLoading && safeMenuItems.length === 0) {
-      // Only use loading view if no data
-      content = (
-        <LoadingView 
-          logoUrl={restaurantInfo?.logo || ""} 
-          restaurantName={restaurantInfo?.name || "Caricamento..."} 
+  // Store rendered content in a variable instead of using early returns
+  let content;
+  
+  if (hasRenderError || error) {
+    content = <ErrorView />;
+  } else if (isLoading && safeMenuItems.length === 0) {
+    // Only use loading view if no data
+    content = (
+      <LoadingView 
+        logoUrl={restaurantInfo?.logo || ""} 
+        restaurantName={restaurantInfo?.name || "Caricamento..."} 
+      />
+    );
+  } else {
+    // Menu items view
+    content = (
+      <div className="p-4 space-y-4 container max-w-md mx-auto">
+        <MenuItemsList 
+          items={filteredItems}
+          excludedAllergens={excludedAllergens}
+          activeCategory={activeCategory}
         />
-      );
-    } else {
-      // Menu items view
-      content = (
-        <div className="p-4 space-y-4 container max-w-md mx-auto">
-          <MenuItemsList 
-            items={filteredItems}
-            excludedAllergens={excludedAllergens}
-            activeCategory={activeCategory}
-          />
-        </div>
-      );
-    }
+      </div>
+    );
+  }
 
-    // Ensure we have valid restaurant info
-    const safeRestaurantInfo = restaurantInfo || {
-      name: "Caricamento...",
-      openingHours: "",
-      phone: "",
-      address: "",
-      socialLinks: {},
-      logo: "/placeholder.svg"
-    };
+  // Ensure we have valid restaurant info
+  const safeRestaurantInfo = restaurantInfo || {
+    name: "Caricamento...",
+    openingHours: "",
+    phone: "",
+    address: "",
+    socialLinks: {},
+    logo: "/placeholder.svg"
+  };
 
-    // Safe categories and allergens
-    const safeCategories = Array.isArray(categories) ? categories : [];
-    const safeAllergens = Array.isArray(allergens) ? allergens : [];
+  // Safe categories and allergens
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeAllergens = Array.isArray(allergens) ? allergens : [];
 
-    // Main render - always returns the same structure
+  try {
+    // Main render - always returns one structure with no early returns
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
         <MenuHeader restaurantName={safeRestaurantInfo.name} />

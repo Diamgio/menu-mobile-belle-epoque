@@ -3,12 +3,11 @@ import React from "react";
 import { useToast } from "@/hooks/use-toast";
 
 const ErrorView = () => {
-  // Ensure all hooks are called unconditionally at the top level
+  // Always call hooks at the top level
   const { toast } = useToast();
   
-  console.log("ErrorView rendering");
-  
   const handleReload = () => {
+    // Show toast notification
     toast({
       title: "Ricaricamento...",
       description: "Tentativo di ricaricare l'applicazione",
@@ -20,6 +19,7 @@ const ErrorView = () => {
     }, 300);
   };
   
+  // No early returns - always render the same structure
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
       <div className="text-center px-4">
