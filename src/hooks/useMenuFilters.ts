@@ -11,11 +11,14 @@ interface UseMenuFiltersResult {
 }
 
 export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
-  console.log("useMenuFilters hook initializing");
+  console.log("useMenuFilters hook initializing with items count:", Array.isArray(menuItems) ? menuItems.length : 0);
   
-  // Always call hooks unconditionally at the top level
+  // ALWAYS call hooks unconditionally at the top level
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
+
+  // Ensure menuItems is an array before operations
+  const safeMenuItems = Array.isArray(menuItems) ? menuItems : [];
 
   // Handle allergen selection
   const handleAllergenChange = (allergen: string) => {
@@ -29,30 +32,32 @@ export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
 
   // Use useMemo for filtering logic to avoid recalculations on every render
   const filteredItems = useMemo(() => {
-    // Ensure menuItems is an array before filtering
-    if (!Array.isArray(menuItems)) {
-      console.log("menuItems is not an array in useMenuFilters", menuItems);
-      return [];
-    }
-    
-    console.log(`Filtering ${menuItems.length} items with category=${activeCategory}, excludedAllergens=${excludedAllergens.length}`);
-    
-    return menuItems.filter((item) => {
-      // Filter by category if one is selected
-      if (activeCategory && item.category !== activeCategory) {
-        return false;
-      }
+    try {
+      console.log(`Filtering ${safeMenuItems.length} items with category=${activeCategory}, excludedAllergens=${excludedAllergens.length}`);
       
-      // Filter by excluded allergens
-      if (excludedAllergens.length > 0 && item.allergens) {
-        if (item.allergens.some(allergen => excludedAllergens.includes(allergen))) {
+      return safeMenuItems.filter((item) => {
+        // Skip null/undefined items
+        if (!item) return false;
+        
+        // Filter by category if one is selected
+        if (activeCategory && item.category !== activeCategory) {
           return false;
         }
-      }
-      
-      return true;
-    });
-  }, [menuItems, activeCategory, excludedAllergens]);
+        
+        // Filter by excluded allergens
+        if (excludedAllergens.length > 0 && Array.isArray(item.allergens)) {
+          if (item.allergens.some(allergen => excludedAllergens.includes(allergen))) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+    } catch (e) {
+      console.error("Error filtering items:", e);
+      return [];
+    }
+  }, [safeMenuItems, activeCategory, excludedAllergens]);
 
   useEffect(() => {
     console.log(`Filtered items count: ${filteredItems.length}`);

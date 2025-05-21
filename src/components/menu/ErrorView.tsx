@@ -1,9 +1,24 @@
 
 import React from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const ErrorView = () => {
-  // No hooks used, so no risk of hook violations
+  // Ensure all hooks are called unconditionally at the top level
+  const { toast } = useToast();
+  
   console.log("ErrorView rendering");
+  
+  const handleReload = () => {
+    toast({
+      title: "Ricaricamento...",
+      description: "Tentativo di ricaricare l'applicazione",
+    });
+    
+    // Short timeout to allow toast to show before reload
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
+  };
   
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
@@ -12,7 +27,7 @@ const ErrorView = () => {
         <p className="text-xl dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
         <button 
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          onClick={() => window.location.reload()}
+          onClick={handleReload}
         >
           Ricarica
         </button>
