@@ -68,7 +68,7 @@ const MenuPage = () => {
     setActiveCategory(category);
   };
 
-  // Store rendered content in a variable instead of using early returns
+  // Prepare content based on state - no early returns
   let content;
   
   if (hasRenderError || error) {
