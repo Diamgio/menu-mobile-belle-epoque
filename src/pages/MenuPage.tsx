@@ -23,6 +23,7 @@ declare global {
 }
 
 const MenuPage = () => {
+  // Always call hooks at the top level - no conditions
   const { 
     menuItems, 
     categories, 
@@ -45,7 +46,7 @@ const MenuPage = () => {
     setActiveCategory(category);
   };
 
-  // Create content elements based on loading state WITHOUT early returns
+  // Move conditional rendering into a function, not affecting hook calls
   const renderContent = () => {
     if (isLoading && menuItems.length === 0) {
       return (

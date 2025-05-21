@@ -13,26 +13,30 @@ interface UseMenuDataResult {
   error: Error | null;
 }
 
+// Default restaurant info to avoid undefined values
+const defaultRestaurantInfo: RestaurantInfo = {
+  name: "Caricamento...",
+  openingHours: "",
+  phone: "",
+  address: "",
+  socialLinks: {},
+  logo: "/placeholder.svg"
+};
+
 export const useMenuData = (): UseMenuDataResult => {
+  // Always initialize state - no conditions
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [allergens, setAllergens] = useState<string[]>([]);
-  const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>({
-    name: "Caricamento...",
-    openingHours: "",
-    phone: "",
-    address: "",
-    socialLinks: {},
-    logo: "/placeholder.svg"
-  });
+  const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>(defaultRestaurantInfo);
   
-  // Fetch menu data from Supabase
+  // Fetch menu data from Supabase - always executed
   const { data, isLoading, error } = useQuery({
     queryKey: ['menuData'],
     queryFn: loadMenuData
   });
   
-  // Load cached data when offline
+  // Load cached data effect
   useEffect(() => {
     // Try to load from cache while loading
     if (isLoading) {
@@ -40,13 +44,14 @@ export const useMenuData = (): UseMenuDataResult => {
       if (cachedData) {
         try {
           const parsedData = JSON.parse(cachedData);
-          setMenuItems(parsedData.menuItems);
-          setCategories(parsedData.categories);
-          setAllergens(parsedData.allergens);
-          setRestaurantInfo(parsedData.restaurantInfo);
+          setMenuItems(parsedData.menuItems || []);
+          setCategories(parsedData.categories || []);
+          setAllergens(parsedData.allergens || []);
+          setRestaurantInfo(parsedData.restaurantInfo || defaultRestaurantInfo);
           
+          // Set global context
           window.__menuContext = {
-            items: parsedData.menuItems
+            items: parsedData.menuItems || []
           };
           
           console.log("Loaded menu data from cache while waiting for API");
@@ -57,16 +62,17 @@ export const useMenuData = (): UseMenuDataResult => {
     }
   }, [isLoading]);
   
+  // Process API data effect
   useEffect(() => {
     if (data) {
-      setMenuItems(data.menuItems);
-      setCategories(data.categories);
-      setAllergens(data.allergens);
-      setRestaurantInfo(data.restaurantInfo);
+      setMenuItems(data.menuItems || []);
+      setCategories(data.categories || []);
+      setAllergens(data.allergens || []);
+      setRestaurantInfo(data.restaurantInfo || defaultRestaurantInfo);
       
       // Make menu items available globally for the ZoomableImage component
       window.__menuContext = {
-        items: data.menuItems
+        items: data.menuItems || []
       };
       
       // Store the menu data in localStorage for offline access
@@ -78,13 +84,14 @@ export const useMenuData = (): UseMenuDataResult => {
       }
       
       console.log("Menu data loaded:", { 
-        itemsCount: data.menuItems.length,
-        categories: data.categories,
-        allergens: data.allergens
+        itemsCount: data.menuItems?.length || 0,
+        categories: data.categories || [],
+        allergens: data.allergens || []
       });
     }
   }, [data]);
 
+  // Always return consistent structure - no conditions
   return {
     menuItems,
     categories,

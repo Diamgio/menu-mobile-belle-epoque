@@ -11,6 +11,7 @@ interface UseMenuFiltersResult {
 }
 
 export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
+  // All hooks are called unconditionally at the top level
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
 
@@ -22,6 +23,7 @@ export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
     );
   };
 
+  // Using useMemo for filtering logic - avoids recalculations on every render
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
       // Filter by category if one is selected
@@ -40,6 +42,7 @@ export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
     });
   }, [menuItems, activeCategory, excludedAllergens]);
 
+  // All hooks are called every time - no conditions
   return {
     activeCategory,
     setActiveCategory,
