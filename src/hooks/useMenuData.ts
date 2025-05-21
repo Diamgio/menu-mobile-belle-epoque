@@ -35,7 +35,7 @@ export const useMenuData = (): UseMenuDataResult => {
   // Load cached data when offline
   useEffect(() => {
     // Try to load from cache while loading
-    const loadCachedData = () => {
+    if (isLoading) {
       const cachedData = localStorage.getItem('menuData');
       if (cachedData) {
         try {
@@ -54,10 +54,6 @@ export const useMenuData = (): UseMenuDataResult => {
           console.error("Error parsing cached data:", e);
         }
       }
-    };
-
-    if (isLoading) {
-      loadCachedData();
     }
   }, [isLoading]);
   
