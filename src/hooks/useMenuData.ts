@@ -26,7 +26,7 @@ const defaultRestaurantInfo: RestaurantInfo = {
 export const useMenuData = (): UseMenuDataResult => {
   console.log("useMenuData hook initializing");
   
-  // Always initialize all state values
+  // Initialize all state values unconditionally
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [allergens, setAllergens] = useState<string[]>([]);
@@ -35,26 +35,27 @@ export const useMenuData = (): UseMenuDataResult => {
   // Fetch menu data from Supabase
   const { data, isLoading, error } = useQuery({
     queryKey: ['menuData'],
-    queryFn: loadMenuData
+    queryFn: loadMenuData,
+    retry: 2
   });
   
   console.log("Query state:", { isLoading, hasError: !!error, hasData: !!data });
   
-  // Load cached data effect
+  // Load cached data effect - only runs while loading
   useEffect(() => {
     console.log("Cache loading effect running, isLoading:", isLoading);
     // Try to load from cache while loading
     if (isLoading) {
-      const cachedData = localStorage.getItem('menuData');
-      if (cachedData) {
-        try {
+      try {
+        const cachedData = localStorage.getItem('menuData');
+        if (cachedData) {
           const parsedData = JSON.parse(cachedData);
           
-          // Always use default values as fallbacks
-          const menuItemsData = Array.isArray(parsedData.menuItems) ? parsedData.menuItems : [];
-          const categoriesData = Array.isArray(parsedData.categories) ? parsedData.categories : [];
-          const allergensData = Array.isArray(parsedData.allergens) ? parsedData.allergens : [];
-          const restaurantInfoData = parsedData.restaurantInfo || defaultRestaurantInfo;
+          // Safely extract data with fallbacks
+          const menuItemsData = Array.isArray(parsedData?.menuItems) ? parsedData.menuItems : [];
+          const categoriesData = Array.isArray(parsedData?.categories) ? parsedData.categories : [];
+          const allergensData = Array.isArray(parsedData?.allergens) ? parsedData.allergens : [];
+          const restaurantInfoData = parsedData?.restaurantInfo || defaultRestaurantInfo;
           
           setMenuItems(menuItemsData);
           setCategories(categoriesData);
@@ -71,50 +72,57 @@ export const useMenuData = (): UseMenuDataResult => {
             categoriesCount: categoriesData.length,
             allergensCount: allergensData.length
           });
-        } catch (e) {
-          console.error("Error parsing cached data:", e);
+        } else {
+          console.log("No cached data found in localStorage");
         }
+      } catch (e) {
+        console.error("Error parsing cached data:", e);
       }
     }
   }, [isLoading]);
   
-  // Process API data effect
+  // Process API data effect - only runs when data changes
   useEffect(() => {
     console.log("API data effect running, hasData:", !!data);
     if (data) {
-      const menuItemsData = Array.isArray(data.menuItems) ? data.menuItems : [];
-      const categoriesData = Array.isArray(data.categories) ? data.categories : [];
-      const allergensData = Array.isArray(data.allergens) ? data.allergens : [];
-      const restaurantInfoData = data.restaurantInfo || defaultRestaurantInfo;
-      
-      setMenuItems(menuItemsData);
-      setCategories(categoriesData);
-      setAllergens(allergensData);
-      setRestaurantInfo(restaurantInfoData);
-      
-      // Make menu items available globally for the ZoomableImage component
-      window.__menuContext = {
-        items: menuItemsData
-      };
-      
-      // Store the menu data in localStorage for offline access
       try {
-        localStorage.setItem('menuData', JSON.stringify({
-          menuItems: menuItemsData,
-          categories: categoriesData,
-          allergens: allergensData,
-          restaurantInfo: restaurantInfoData
-        }));
-        console.log("Menu data cached in localStorage for offline use");
+        // Safely extract data with fallbacks
+        const menuItemsData = Array.isArray(data?.menuItems) ? data.menuItems : [];
+        const categoriesData = Array.isArray(data?.categories) ? data.categories : [];
+        const allergensData = Array.isArray(data?.allergens) ? data.allergens : [];
+        const restaurantInfoData = data?.restaurantInfo || defaultRestaurantInfo;
+        
+        setMenuItems(menuItemsData);
+        setCategories(categoriesData);
+        setAllergens(allergensData);
+        setRestaurantInfo(restaurantInfoData);
+        
+        // Make menu items available globally for the ZoomableImage component
+        window.__menuContext = {
+          items: menuItemsData
+        };
+        
+        // Store the menu data in localStorage for offline access
+        try {
+          localStorage.setItem('menuData', JSON.stringify({
+            menuItems: menuItemsData,
+            categories: categoriesData,
+            allergens: allergensData,
+            restaurantInfo: restaurantInfoData
+          }));
+          console.log("Menu data cached in localStorage for offline use");
+        } catch (e) {
+          console.error("Error caching menu data:", e);
+        }
+        
+        console.log("Menu data loaded from API:", { 
+          itemsCount: menuItemsData.length,
+          categoriesCount: categoriesData.length,
+          allergensCount: allergensData.length
+        });
       } catch (e) {
-        console.error("Error caching menu data:", e);
+        console.error("Error processing API data:", e);
       }
-      
-      console.log("Menu data loaded from API:", { 
-        itemsCount: menuItemsData.length,
-        categoriesCount: categoriesData.length,
-        allergensCount: allergensData.length
-      });
     }
   }, [data]);
 

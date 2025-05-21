@@ -23,9 +23,9 @@ declare global {
 }
 
 const MenuPage = () => {
-  // Always call all hooks at the top level of your component
   console.log("MenuPage rendering");
   
+  // Always call all hooks at the top level
   const { 
     menuItems, 
     categories, 
@@ -35,7 +35,13 @@ const MenuPage = () => {
     error 
   } = useMenuData();
 
-  console.log("useMenuData hook result:", { menuItemsCount: menuItems.length, isLoading, error });
+  // Ensure menuItems is never undefined
+  const safeMenuItems = Array.isArray(menuItems) ? menuItems : [];
+  console.log("useMenuData hook result:", { 
+    menuItemsCount: safeMenuItems.length, 
+    isLoading, 
+    error 
+  });
 
   const { 
     activeCategory, 
@@ -43,14 +49,15 @@ const MenuPage = () => {
     excludedAllergens, 
     handleAllergenChange, 
     filteredItems 
-  } = useMenuFilters(menuItems);
+  } = useMenuFilters(safeMenuItems);
 
   console.log("useMenuFilters hook result:", {
     activeCategory,
     excludedAllergens,
     filteredItemsCount: filteredItems.length
   });
-
+  
+  // Category selection handler
   const handleCategorySelect = (category: string | null) => {
     console.log("Category selected:", category);
     setActiveCategory(category);
@@ -58,11 +65,11 @@ const MenuPage = () => {
 
   // Move conditional rendering logic to a separate function to avoid breaking hook rules
   const renderContent = () => {
-    if (isLoading && menuItems.length === 0) {
+    if (isLoading && safeMenuItems.length === 0) {
       return (
         <LoadingView 
-          logoUrl={restaurantInfo.logo || ""} 
-          restaurantName={restaurantInfo.name} 
+          logoUrl={restaurantInfo?.logo || ""} 
+          restaurantName={restaurantInfo?.name || "Caricamento..."} 
         />
       );
     }
@@ -82,14 +89,28 @@ const MenuPage = () => {
     );
   };
 
+  // Ensure we have valid restaurant info
+  const safeRestaurantInfo = restaurantInfo || {
+    name: "Caricamento...",
+    openingHours: "",
+    phone: "",
+    address: "",
+    socialLinks: {},
+    logo: "/placeholder.svg"
+  };
+
+  // Safe categories and allergens
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeAllergens = Array.isArray(allergens) ? allergens : [];
+
   // Main render - always returns the same structure
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
-      <MenuHeader restaurantName={restaurantInfo.name} />
+      <MenuHeader restaurantName={safeRestaurantInfo.name} />
 
       <div className="sticky top-[3.25rem] z-20 w-full">
         <CategoryFilter
-          categories={categories}
+          categories={safeCategories}
           activeCategory={activeCategory}
           onSelectCategory={handleCategorySelect}
         />
@@ -100,7 +121,7 @@ const MenuPage = () => {
       {/* Floating Allergen Filter Button (left side) */}
       <div className="fixed bottom-4 left-4 z-40">
         <AllergenFilter
-          allergens={allergens}
+          allergens={safeAllergens}
           excludedAllergens={excludedAllergens}
           onAllergenChange={handleAllergenChange}
           isFloating={true}
@@ -108,7 +129,7 @@ const MenuPage = () => {
       </div>
       
       {/* Floating Info Button (right side) */}
-      <RestaurantInfo info={restaurantInfo} floatingButton={true} />
+      <RestaurantInfo info={safeRestaurantInfo} floatingButton={true} />
       
       {/* Gallery component for image viewing */}
       <Gallery />
