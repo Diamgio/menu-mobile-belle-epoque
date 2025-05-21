@@ -17,7 +17,7 @@ export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
 
-  // Ensure menuItems is an array before operations
+  // Ensure menuItems is an array before operations - do this outside of hooks
   const safeMenuItems = Array.isArray(menuItems) ? menuItems : [];
 
   // Handle allergen selection
@@ -45,9 +45,10 @@ export const useMenuFilters = (menuItems: MenuItem[]): UseMenuFiltersResult => {
           return false;
         }
         
-        // Filter by excluded allergens
-        if (excludedAllergens.length > 0 && Array.isArray(item.allergens)) {
-          if (item.allergens.some(allergen => excludedAllergens.includes(allergen))) {
+        // Filter by excluded allergens (safely check if item.allergens is an array)
+        if (excludedAllergens.length > 0) {
+          const itemAllergens = Array.isArray(item.allergens) ? item.allergens : [];
+          if (itemAllergens.some(allergen => excludedAllergens.includes(allergen))) {
             return false;
           }
         }

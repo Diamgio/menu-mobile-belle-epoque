@@ -16,6 +16,7 @@ import { AspectRatio } from "./ui/aspect-ratio";
 import { X } from "lucide-react";
 
 const Gallery = () => {
+  // Always call hooks at the top level
   const { items, isOpen, closeGallery, currentItemIndex, setCurrentItemIndex } = useGallery();
   const [carouselApi, setCarouselApi] = React.useState<any>(null);
 
@@ -40,19 +41,23 @@ const Gallery = () => {
     };
   }, [carouselApi, setCurrentItemIndex]);
 
-  // Get all image sources from all items
+  // Get all image sources from all items - ALWAYS call this, not conditionally
   const allImages = React.useMemo(() => {
-    return items.flatMap(item => {
+    const safeItems = Array.isArray(items) ? items : [];
+    return safeItems.flatMap(item => {
+      if (!item) return ["/placeholder.svg"];
       const images = item.images || (item.image ? [item.image] : []);
       return images.length > 0 ? images : ["/placeholder.svg"];
     });
   }, [items]);
 
-  // Prepare content instead of using early return
-  let content = null;
+  // Don't use early returns - prepare content based on conditions instead
+  let galleryContent = null;
   
   if (isOpen && allImages.length > 0) {
-    content = (
+    const currentItem = Array.isArray(items) && items.length > currentItemIndex ? items[currentItemIndex] : null;
+    
+    galleryContent = (
       <Dialog open={isOpen} onOpenChange={(open) => !open && closeGallery()}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/95 border-none">
           <button 
@@ -63,8 +68,8 @@ const Gallery = () => {
           </button>
           
           <div className="p-4 text-white">
-            <h3 className="text-xl font-bold mb-1">{items[currentItemIndex]?.name}</h3>
-            <p className="text-sm opacity-80">{items[currentItemIndex]?.description}</p>
+            <h3 className="text-xl font-bold mb-1">{currentItem?.name || "Immagine"}</h3>
+            <p className="text-sm opacity-80">{currentItem?.description || ""}</p>
           </div>
           
           <Carousel 
@@ -102,7 +107,8 @@ const Gallery = () => {
     );
   }
 
-  return content;
+  // Always return something, even if it's null
+  return galleryContent;
 };
 
 export default Gallery;
