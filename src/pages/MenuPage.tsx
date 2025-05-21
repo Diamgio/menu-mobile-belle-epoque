@@ -128,8 +128,8 @@ const MenuPage = () => {
     setActiveCategory(category);
   };
 
-  // Create UI elements based on loading state
-  const renderContent = () => {
+  // Create content elements based on loading state WITHOUT early returns
+  const getContentElement = () => {
     if (isLoading && menuItems.length === 0) {
       return (
         <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
@@ -208,7 +208,7 @@ const MenuPage = () => {
         />
       </div>
 
-      {renderContent()}
+      {getContentElement()}
       
       {/* Floating Allergen Filter Button (left side) */}
       <div className="fixed bottom-4 left-4 z-40">
