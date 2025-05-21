@@ -50,6 +50,7 @@ const MenuPage = () => {
     filteredItems 
   } = useMenuFilters(safeMenuItems);
 
+  // Add debugging information
   useEffect(() => {
     console.log("MenuPage mounted with state:", {
       itemsCount: safeMenuItems.length,
@@ -108,7 +109,7 @@ const MenuPage = () => {
   const safeCategories = Array.isArray(categories) ? categories : [];
   const safeAllergens = Array.isArray(allergens) ? allergens : [];
 
-  // Wrap only the actual JSX rendering in try/catch, not the return statement itself
+  // Prepare the final rendering result
   let renderedContent;
   try {
     renderedContent = (
