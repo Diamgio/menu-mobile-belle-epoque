@@ -9,6 +9,7 @@ import MenuItem from "@/components/MenuItem";
 import RestaurantInfo from "@/components/RestaurantInfo";
 import ZoomableImage from "@/components/ZoomableImage";
 import Gallery from "@/components/Gallery";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 // Define a global window object with menu context for access from other components
 declare global {
@@ -102,7 +103,7 @@ const MenuPage = () => {
         </div>
         <div className="text-center px-4">
           <div className="mb-4 text-3xl font-bold dark:text-white">Caricamento...</div>
-          <p className="text-gray-500 dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
+          <p className="text-xl dark:text-gray-400">Stiamo caricando il menu del ristorante.</p>
         </div>
       </div>
     );
@@ -113,7 +114,7 @@ const MenuPage = () => {
       <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 w-full">
         <div className="text-center px-4">
           <div className="mb-4 text-3xl font-bold text-red-600">Errore</div>
-          <p className="text-gray-500 dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
+          <p className="text-xl dark:text-gray-400">Si è verificato un errore durante il caricamento del menu.</p>
         </div>
       </div>
     );
@@ -122,8 +123,10 @@ const MenuPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
       <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 px-4 py-3 shadow-sm w-full">
-        <div className="flex items-center justify-center max-w-md mx-auto">
+        <div className="flex items-center justify-between max-w-md mx-auto">
+          <div></div>
           <h1 className="text-xl font-bold dark:text-white">{restaurantInfo.name}</h1>
+          <ThemeToggle />
         </div>
       </div>
 
@@ -147,13 +150,13 @@ const MenuPage = () => {
           ))
         ) : (
           <div className="mt-8 text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-lg text-gray-500 dark:text-gray-400">
               {activeCategory 
                 ? `Nessun piatto trovato nella categoria "${activeCategory}"`
                 : "Nessun piatto trovato con i filtri selezionati"}
             </p>
             {excludedAllergens.length > 0 && (
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+              <p className="text-base text-gray-400 dark:text-gray-500 mt-2">
                 Hai escluso {excludedAllergens.length} allergeni
               </p>
             )}

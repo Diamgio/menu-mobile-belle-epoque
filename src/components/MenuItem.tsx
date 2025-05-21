@@ -34,13 +34,15 @@ const MenuItem = ({ item, excludedAllergens, itemIndex = 0 }: MenuItemProps) => 
       <div className="grid grid-cols-3 gap-2">
         <div className="col-span-2">
           <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-lg">{item.name}</CardTitle>
-            <CardDescription className="mt-1 line-clamp-2">
+            <CardTitle className="text-xl font-bold">
+              {item.name}
+            </CardTitle>
+            <CardDescription className="mt-1 line-clamp-2 text-base">
               {item.description}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 pt-0 pb-2">
-            <p className="font-semibold text-primary">€{item.price.toFixed(2)}</p>
+            <p className="font-semibold text-lg text-primary">€{item.price.toFixed(2)}</p>
           </CardContent>
           {item.allergens.length > 0 && (
             <CardFooter className="flex flex-wrap gap-1 p-4 pt-0">
@@ -49,7 +51,7 @@ const MenuItem = ({ item, excludedAllergens, itemIndex = 0 }: MenuItemProps) => 
                   key={allergen} 
                   variant="outline" 
                   className={cn(
-                    "text-xs",
+                    "text-sm",
                     excludedAllergens.includes(allergen) ? "bg-red-100" : ""
                   )}
                 >

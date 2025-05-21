@@ -72,7 +72,7 @@ const CategoryFilter = ({
             <CarouselItem className="basis-auto pl-2">
               <button
                 className={cn(
-                  "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                  "whitespace-nowrap rounded-full px-4 py-2 text-base font-medium transition-colors",
                   activeCategory === null
                     ? "bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
@@ -87,7 +87,7 @@ const CategoryFilter = ({
               <CarouselItem className="basis-auto pl-2" key={category}>
                 <button
                   className={cn(
-                    "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                    "whitespace-nowrap rounded-full px-4 py-2 text-base font-medium transition-colors",
                     activeCategory === category
                       ? "bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
