@@ -13,7 +13,7 @@ import MenuItemsList from "@/components/menu/MenuItemsList";
 import { useMenuData } from "@/hooks/useMenuData";
 import { useMenuFilters } from "@/hooks/useMenuFilters";
 
-// Define a global window object with menu context for access from other components
+// Definisci un oggetto window globale con il contesto del menu per l'accesso da altri componenti
 declare global {
   interface Window {
     __menuContext?: {
@@ -25,7 +25,7 @@ declare global {
 const MenuPage = () => {
   console.log("MenuPage rendering");
   
-  // ALWAYS call all hooks at the top level unconditionally
+  // SEMPRE chiama tutti gli hooks all'inizio in modo incondizionato
   const { 
     menuItems, 
     categories, 
@@ -35,26 +35,27 @@ const MenuPage = () => {
     error 
   } = useMenuData();
   
-  // Initialize window.__menuContext to avoid undefined errors
+  // Inizializza window.__menuContext per evitare errori undefined
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Inizializza sempre l'oggetto di contesto
       window.__menuContext = window.__menuContext || { items: [] };
       
-      // Update the menu context if we have menu items
+      // Aggiorna il contesto del menu se abbiamo elementi di menu
       if (Array.isArray(menuItems) && menuItems.length > 0) {
         window.__menuContext.items = menuItems;
-        console.log("Menu context updated with items:", menuItems.length);
+        console.log("Menu context aggiornato con elementi:", menuItems.length);
       }
     }
   }, [menuItems]);
   
-  // Ensure menuItems is never undefined for the filter hook
+  // Assicura che menuItems non sia mai undefined per l'hook di filtro
   const safeMenuItems = Array.isArray(menuItems) ? menuItems : [];
   
-  // Track a flag to ensure we properly handle any rendering errors
+  // Tieni traccia di un flag per assicurarti di gestire correttamente eventuali errori di rendering
   const [hasRenderError, setHasRenderError] = useState(false);
   
-  // Always call useMenuFilters, even if there's an error
+  // Chiama sempre useMenuFilters, anche se c'è un errore
   const { 
     activeCategory, 
     setActiveCategory, 
@@ -63,32 +64,32 @@ const MenuPage = () => {
     filteredItems 
   } = useMenuFilters(safeMenuItems);
 
-  // Add debugging information
+  // Aggiungi informazioni di debug
   useEffect(() => {
-    console.log("MenuPage mounted with state:", {
+    console.log("MenuPage montata con stato:", {
       itemsCount: safeMenuItems.length,
       isLoading,
       hasError: !!error,
       filteredItemsCount: filteredItems.length,
     });
     
-    // Clear any render errors on remount
+    // Cancella eventuali errori di rendering al rimontaggio
     setHasRenderError(false);
   }, [safeMenuItems, isLoading, error, filteredItems.length]);
   
-  // Category selection handler - kept outside of component body
+  // Gestore della selezione della categoria - mantenuto fuori dal corpo del componente
   const handleCategorySelect = (category: string | null) => {
-    console.log("Category selected:", category);
+    console.log("Categoria selezionata:", category);
     setActiveCategory(category);
   };
 
-  // Prepare content based on state - no early returns
+  // Prepara il contenuto in base allo stato - nessun return anticipato
   let content;
   
   if (hasRenderError || error) {
     content = <ErrorView />;
   } else if (isLoading && safeMenuItems.length === 0) {
-    // Only use loading view if no data
+    // Usa la vista di caricamento solo se non ci sono dati
     content = (
       <LoadingView 
         logoUrl={restaurantInfo?.logo || ""} 
@@ -96,7 +97,7 @@ const MenuPage = () => {
       />
     );
   } else {
-    // Menu items view
+    // Vista degli elementi del menu
     content = (
       <div className="p-4 space-y-4 container max-w-md mx-auto">
         <MenuItemsList 
@@ -108,7 +109,7 @@ const MenuPage = () => {
     );
   }
 
-  // Ensure we have valid restaurant info
+  // Assicurati di avere informazioni sul ristorante valide
   const safeRestaurantInfo = restaurantInfo || {
     name: "Caricamento...",
     openingHours: "",
@@ -118,11 +119,11 @@ const MenuPage = () => {
     logo: "/placeholder.svg"
   };
 
-  // Safe categories and allergens
+  // Categorie e allergeni sicuri
   const safeCategories = Array.isArray(categories) ? categories : [];
   const safeAllergens = Array.isArray(allergens) ? allergens : [];
 
-  // Prepare the final rendering result
+  // Prepara il risultato finale del rendering
   try {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
@@ -138,7 +139,7 @@ const MenuPage = () => {
 
         {content}
         
-        {/* Floating Allergen Filter Button (left side) */}
+        {/* Pulsante Filtro Allergeni fluttuante (lato sinistro) */}
         <div className="fixed bottom-4 left-4 z-40">
           <AllergenFilter
             allergens={safeAllergens}
@@ -148,18 +149,18 @@ const MenuPage = () => {
           />
         </div>
         
-        {/* Floating Info Button (right side) */}
+        {/* Pulsante Info fluttuante (lato destro) */}
         <RestaurantInfo info={safeRestaurantInfo} floatingButton={true} />
         
-        {/* Gallery component for image viewing */}
+        {/* Componente Gallery per la visualizzazione delle immagini */}
         <Gallery />
         
-        {/* Offline status alert */}
+        {/* Avviso stato offline */}
         <OfflineAlert />
       </div>
     );
   } catch (e) {
-    console.error("Error rendering MenuPage content:", e);
+    console.error("Errore nel rendering del contenuto di MenuPage:", e);
     setHasRenderError(true);
     return <ErrorView />;
   }
