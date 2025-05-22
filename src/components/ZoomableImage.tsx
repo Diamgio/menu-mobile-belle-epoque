@@ -24,19 +24,19 @@ const ZoomableImage = ({
   showLoadingPlaceholder = true,
   itemIndex = 0,
 }: ZoomableImageProps) => {
-  // SEMPRE chiama tutti gli hooks in modo incondizionato all'inizio
+  // Chiamiamo SEMPRE tutti gli hooks all'inizio in modo incondizionato
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageType, setImageType] = useState<string | null>(null);
   const [isGalleryEnabled, setIsGalleryEnabled] = useState(false);
   
-  // Sempre chiama il hook in modo incondizionato all'inizio
+  // Chiamiamo il hook in modo incondizionato
   const gallery = useGallery();
   
   // Converti src in array se è una stringa per una gestione unificata
   const imageSources = Array.isArray(src) ? src : [src];
 
-  // Controlla se la funzionalità della galleria è disponibile dopo il montaggio del componente
+  // Controlla se la funzionalità della galleria è disponibile 
   useEffect(() => {
     // Verifica che gallery esista e che la funzione openGallery sia disponibile
     setIsGalleryEnabled(!!gallery && typeof gallery.openGallery === 'function');
@@ -68,7 +68,7 @@ const ZoomableImage = ({
     // Prova ad aprire la galleria solo se è abilitata e l'oggetto gallery esiste
     if (isGalleryEnabled && gallery && typeof gallery.openGallery === 'function') {
       try {
-        // MenuPage inietterà l'array allItems e l'indice di questo elemento usando il contesto
+        // Verifica che window.__menuContext esista e contenga items
         const menuItems = window.__menuContext?.items || [];
         gallery.openGallery(menuItems, itemIndex);
       } catch (error) {
@@ -77,10 +77,10 @@ const ZoomableImage = ({
     }
   };
 
-  // Prepara variabili che verranno utilizzate nella renderizzazione
+  // Prepariamo tutti gli elementi UI possibili - NO RETURN PRECOCI
   let content;
   
-  // Mostra fallback per immagini mancanti
+  // Se non ci sono sorgenti immagine
   if (!imageSources[0]) {
     content = (
       <div className={cn("bg-gray-100 flex items-center justify-center", containerClassName)}>
@@ -92,7 +92,7 @@ const ZoomableImage = ({
     // Rilevamento migliorato del placeholder
     const isPlaceholder = imageSources[0].includes('placeholder') || imageSources[0] === '/placeholder.svg';
     
-    // Mostra il placeholder di caricamento in base al prop
+    // Prepara il fallback per l'immagine
     const imageFallback = hasError ? (
       <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
         <ImageOff className="text-gray-400 w-8 h-8" />
@@ -149,6 +149,7 @@ const ZoomableImage = ({
     );
   }
 
+  // UN SOLO RETURN alla fine della funzione
   return content;
 };
 
