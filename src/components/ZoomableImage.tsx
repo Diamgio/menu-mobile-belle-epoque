@@ -27,13 +27,31 @@ const ZoomableImage = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageType, setImageType] = useState<string | null>(null);
+  const [isGalleryEnabled, setIsGalleryEnabled] = useState(false);
   
-  // Try to use the gallery context, but don't error if it's not available
-  let galleryContext;
+  // Always call the hook unconditionally at the top level
+  // Set a default object with empty functions to handle the case where the context is not available
+  const galleryContext = {
+    openGallery: () => {},
+    closeGallery: () => {},
+    items: [],
+    currentItemIndex: 0,
+    isOpen: false,
+    setCurrentItemIndex: () => {}
+  };
+  
+  // Try to get the real gallery context, but don't throw if it's not available
   try {
-    galleryContext = useGallery();
+    Object.assign(galleryContext, useGallery());
+    // If we get here without error, gallery is available
+    useEffect(() => {
+      setIsGalleryEnabled(true);
+    }, []);
   } catch (error) {
-    // Context not available, will handle this case below
+    // Context not available, we'll handle this with isGalleryEnabled state
+    useEffect(() => {
+      setIsGalleryEnabled(false);
+    }, []);
   }
   
   // Convert src to array if it's a string for unified handling
@@ -62,8 +80,8 @@ const ZoomableImage = ({
   };
 
   const handleImageClick = () => {
-    // Only try to open the gallery if the context is available
-    if (galleryContext) {
+    // Only try to open the gallery if it's enabled
+    if (isGalleryEnabled) {
       // The MenuPage will inject the allItems array and this item's index using context
       // We'll pass this information to the gallery when it's opened
       const menuItems = window.__menuContext?.items || [];
@@ -96,8 +114,8 @@ const ZoomableImage = ({
 
   return (
     <div 
-      className={cn("relative group", galleryContext ? "cursor-zoom-in" : "", containerClassName)}
-      onClick={galleryContext ? handleImageClick : undefined}
+      className={cn("relative group", isGalleryEnabled ? "cursor-zoom-in" : "", containerClassName)}
+      onClick={isGalleryEnabled ? handleImageClick : undefined}
     >
       {aspectRatio ? (
         <AspectRatio ratio={aspectRatio} className="overflow-hidden">
@@ -132,7 +150,7 @@ const ZoomableImage = ({
           {imageFallback}
         </>
       )}
-      {galleryContext && (
+      {isGalleryEnabled && (
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
           <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg" />
         </div>

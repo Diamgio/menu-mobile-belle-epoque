@@ -25,6 +25,13 @@ declare global {
 const MenuPage = () => {
   console.log("MenuPage rendering");
   
+  // Initialize window.__menuContext to avoid undefined errors
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !window.__menuContext) {
+      window.__menuContext = { items: [] };
+    }
+  }, []);
+  
   // ALWAYS call all hooks at the top level unconditionally
   const { 
     menuItems, 
@@ -59,9 +66,15 @@ const MenuPage = () => {
       filteredItemsCount: filteredItems.length,
     });
     
+    // Make menu items available globally for the ZoomableImage component
+    if (typeof window !== 'undefined') {
+      window.__menuContext = { items: safeMenuItems };
+      console.log("Menu context updated globally with items count:", safeMenuItems.length);
+    }
+    
     // Clear any render errors on remount
     setHasRenderError(false);
-  }, [safeMenuItems.length, isLoading, error, filteredItems.length]);
+  }, [safeMenuItems, isLoading, error, filteredItems.length]);
   
   // Category selection handler - kept outside of component body
   const handleCategorySelect = (category: string | null) => {
@@ -110,9 +123,8 @@ const MenuPage = () => {
   const safeAllergens = Array.isArray(allergens) ? allergens : [];
 
   // Prepare the final rendering result
-  let renderedContent;
   try {
-    renderedContent = (
+    return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 relative w-full">
         <MenuHeader restaurantName={safeRestaurantInfo.name} />
 
@@ -149,11 +161,8 @@ const MenuPage = () => {
   } catch (e) {
     console.error("Error rendering MenuPage content:", e);
     setHasRenderError(true);
-    renderedContent = <ErrorView />;
+    return <ErrorView />;
   }
-
-  // Always return the rendered content - no conditional returns at the component level
-  return renderedContent;
 };
 
 export default MenuPage;
