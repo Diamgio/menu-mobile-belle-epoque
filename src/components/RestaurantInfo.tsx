@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 import ZoomableImage from "./ZoomableImage";
+import { ThemeToggle } from "./ThemeToggle";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -53,25 +54,25 @@ const RestaurantInfo = ({ info, floatingButton = false }: RestaurantInfoProps) =
           )}
           <div className="text-center">
             <h2 className="font-semibold text-xl">{info.name}</h2>
-            <p className="text-base text-muted-foreground">Informazioni sul ristorante</p>
+            <p className="text-sm text-muted-foreground">Informazioni sul ristorante</p>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-start gap-3">
               <Clock className="mt-1 h-5 w-5 text-gray-500" />
               <div>
-                <h4 className="font-medium text-lg">Orari di apertura</h4>
-                <p className="text-base text-gray-500">{info.openingHours}</p>
+                <h4 className="font-medium">Orari di apertura</h4>
+                <p className="text-sm text-gray-500">{info.openingHours}</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
               <Phone className="mt-1 h-5 w-5 text-gray-500" />
               <div>
-                <h4 className="font-medium text-lg">Telefono</h4>
+                <h4 className="font-medium">Telefono</h4>
                 <a 
                   href={`tel:${info.phone}`}
-                  className="text-base text-blue-600 hover:underline"
+                  className="text-sm text-blue-600 hover:underline"
                 >
                   {info.phone}
                 </a>
@@ -81,12 +82,12 @@ const RestaurantInfo = ({ info, floatingButton = false }: RestaurantInfoProps) =
             <div className="flex items-start gap-3">
               <MapPin className="mt-1 h-5 w-5 text-gray-500" />
               <div>
-                <h4 className="font-medium text-lg">Indirizzo</h4>
+                <h4 className="font-medium">Indirizzo</h4>
                 <a 
                   href={`https://maps.google.com/?q=${encodeURIComponent(info.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-base text-blue-600 hover:underline"
+                  className="text-sm text-blue-600 hover:underline"
                 >
                   {info.address}
                 </a>
@@ -114,6 +115,14 @@ const RestaurantInfo = ({ info, floatingButton = false }: RestaurantInfoProps) =
                   <Instagram className="h-6 w-6" />
                 </a>
               )}
+            </div>
+          </div>
+          
+          <div className="border-t pt-4 mt-4">
+            <h4 className="font-medium mb-3">Preferenze</h4>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Tema</span>
+              <ThemeToggle />
             </div>
           </div>
           

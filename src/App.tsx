@@ -15,14 +15,11 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
-// Verify React is available
-console.log("App initializing with React:", !!React);
-
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-  // Component initialization with logging
+  // Ensure React is fully initialized before rendering
   React.useEffect(() => {
     console.log("App component mounted");
   }, []);

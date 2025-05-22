@@ -30,13 +30,18 @@ const AllergenFilter = ({
       <SheetTrigger asChild>
         <Button 
           variant={isFloating ? "default" : "outline"} 
-          size={isFloating ? "default" : "sm"}
-          className={`${isFloating ? "rounded-full shadow-lg h-12 w-auto md:rounded-md" : "gap-2"} flex items-center`}
+          size={isFloating ? "icon" : "sm"}
+          className={`${isFloating ? "rounded-full shadow-lg h-12 w-12 md:h-auto md:w-auto md:rounded-md md:px-4" : "gap-2"}`}
         >
-          <Filter size={16} className="mr-2" />
-          <span className="text-base">Allergeni</span>
-          {excludedAllergens.length > 0 && (
+          <Filter size={16} />
+          {!isFloating && "Filtro Allergeni"}
+          {!isFloating && excludedAllergens.length > 0 && (
             <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+              {excludedAllergens.length}
+            </span>
+          )}
+          {isFloating && excludedAllergens.length > 0 && (
+            <span className="absolute -top-2 -right-2 rounded-full bg-red-500 w-5 h-5 flex items-center justify-center text-xs text-white">
               {excludedAllergens.length}
             </span>
           )}
@@ -44,14 +49,14 @@ const AllergenFilter = ({
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle className="text-xl">Filtro Allergeni</SheetTitle>
-          <SheetDescription className="text-base">
+          <SheetTitle>Filtro Allergeni</SheetTitle>
+          <SheetDescription>
             Seleziona gli allergeni da escludere
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-4">
           {allergens.map((allergen) => (
-            <div key={allergen} className="flex items-center space-x-3">
+            <div key={allergen} className="flex items-center space-x-2">
               <Checkbox
                 id={`allergen-${allergen}`}
                 checked={excludedAllergens.includes(allergen)}
@@ -59,7 +64,7 @@ const AllergenFilter = ({
               />
               <label
                 htmlFor={`allergen-${allergen}`}
-                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {allergen}
               </label>

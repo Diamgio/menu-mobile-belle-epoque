@@ -3,42 +3,36 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { registerServiceWorker, checkForAppInstallation } from './pwa/registerSW';
 
-// Explicitly attach React to window for debugging purposes
-if (typeof window !== 'undefined') {
-  window.React = React;
-  console.log("React attached to window:", !!window.React);
-}
+// Script to prevent theme flash
+const themeScript = `
+  (function() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const storedTheme = localStorage.getItem('restaurant-menu-theme');
+    if (storedTheme === 'dark' || (storedTheme === 'system' && prefersDark) || (!storedTheme && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  })()
+`;
 
-console.log("React version:", React.version);
-console.log("Initializing React application");
+// Create script element and inject the theme script
+const themeScriptTag = document.createElement('script');
+themeScriptTag.innerHTML = themeScript;
+document.head.appendChild(themeScriptTag);
 
-// Register service worker for PWA functionality
-registerServiceWorker();
-
-// Check if the app can be installed
-checkForAppInstallation();
-
-// Get the root element
+// Initialize React immediately
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   console.error("Root element not found");
 } else {
-  try {
-    // Create root and render the app
-    const root = createRoot(rootElement);
-    
-    // Render the app - use the explicit React import
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    );
-    
-    console.log("React app initialized successfully");
-  } catch (error) {
-    console.error("Error initializing React:", error);
-  }
+  const root = createRoot(rootElement);
+  
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 }
