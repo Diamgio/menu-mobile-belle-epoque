@@ -30,29 +30,12 @@ const ZoomableImage = ({
   const [isGalleryEnabled, setIsGalleryEnabled] = useState(false);
   
   // Always call the hook unconditionally at the top level
-  // Set a default object with empty functions to handle the case where the context is not available
-  const galleryContext = {
-    openGallery: () => {},
-    closeGallery: () => {},
-    items: [],
-    currentItemIndex: 0,
-    isOpen: false,
-    setCurrentItemIndex: () => {}
-  };
+  const gallery = useGallery();
   
-  // Try to get the real gallery context, but don't throw if it's not available
-  try {
-    Object.assign(galleryContext, useGallery());
-    // If we get here without error, gallery is available
-    useEffect(() => {
-      setIsGalleryEnabled(true);
-    }, []);
-  } catch (error) {
-    // Context not available, we'll handle this with isGalleryEnabled state
-    useEffect(() => {
-      setIsGalleryEnabled(false);
-    }, []);
-  }
+  // Check if gallery functionality is available after component mounts
+  useEffect(() => {
+    setIsGalleryEnabled(!!gallery && typeof gallery.openGallery === 'function');
+  }, [gallery]);
   
   // Convert src to array if it's a string for unified handling
   const imageSources = Array.isArray(src) ? src : [src];
@@ -81,11 +64,10 @@ const ZoomableImage = ({
 
   const handleImageClick = () => {
     // Only try to open the gallery if it's enabled
-    if (isGalleryEnabled) {
+    if (isGalleryEnabled && gallery) {
       // The MenuPage will inject the allItems array and this item's index using context
-      // We'll pass this information to the gallery when it's opened
       const menuItems = window.__menuContext?.items || [];
-      galleryContext.openGallery(menuItems, itemIndex);
+      gallery.openGallery(menuItems, itemIndex);
     }
   };
 
