@@ -2,14 +2,18 @@
 import { RestaurantInfo as RestaurantInfoType } from "@/types/menu";
 import { Phone, MapPin, Clock, Facebook, Instagram, Settings } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 import ZoomableImage from "./ZoomableImage";
 import { Link } from "react-router-dom";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface RestaurantInfoProps {
   info: RestaurantInfoType;
@@ -17,52 +21,23 @@ interface RestaurantInfoProps {
 }
 
 const RestaurantInfo = ({ info, floatingButton = false }: RestaurantInfoProps) => {
-  // Prepare trigger button based on prop
-  const triggerButton = floatingButton ? (
-    <Button 
-      variant="default" 
-      size="icon" 
-      className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg"
-    >
-      <Info className="h-5 w-5" />
-    </Button>
-  ) : (
-    <Button variant="outline" size="sm" className="gap-2">
-      <Info size={16} />
-      Info
-    </Button>
-  );
-  
-  // Prepare social media links based on info
-  const socialLinks = (
-    <div className="flex items-center gap-4 pt-2">
-      {info.socialLinks?.facebook && (
-        <a 
-          href={info.socialLinks.facebook}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-500"
-        >
-          <Facebook className="h-6 w-6" />
-        </a>
-      )}
-      {info.socialLinks?.instagram && (
-        <a 
-          href={info.socialLinks.instagram}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-gray-700 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
-        >
-          <Instagram className="h-6 w-6" />
-        </a>
-      )}
-    </div>
-  );
-
   return (
     <Sheet>
       <SheetTrigger asChild>
-        {triggerButton}
+        {floatingButton ? (
+          <Button 
+            variant="default" 
+            size="icon" 
+            className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg"
+          >
+            <Info className="h-5 w-5" />
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" className="gap-2">
+            <Info size={16} />
+            Info
+          </Button>
+        )}
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <div className="space-y-6 py-6">
@@ -118,7 +93,28 @@ const RestaurantInfo = ({ info, floatingButton = false }: RestaurantInfoProps) =
               </div>
             </div>
 
-            {socialLinks}
+            <div className="flex items-center gap-4 pt-2">
+              {info.socialLinks.facebook && (
+                <a 
+                  href={info.socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-500"
+                >
+                  <Facebook className="h-6 w-6" />
+                </a>
+              )}
+              {info.socialLinks.instagram && (
+                <a 
+                  href={info.socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-700 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                >
+                  <Instagram className="h-6 w-6" />
+                </a>
+              )}
+            </div>
           </div>
           
           <div className="border-t pt-4 mt-4">

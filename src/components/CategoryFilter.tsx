@@ -55,45 +55,6 @@ const CategoryFilter = ({
     };
   }, [api]);
 
-  // Prepare the navigation buttons based on state
-  const prevButton = canScrollPrev ? (
-    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
-      <button 
-        onClick={() => api?.scrollPrev()} 
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-md dark:bg-gray-800/80"
-        aria-label="Scorri a sinistra"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </button>
-    </div>
-  ) : null;
-  
-  const nextButton = canScrollNext ? (
-    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10">
-      <button 
-        onClick={() => api?.scrollNext()} 
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-md dark:bg-gray-800/80"
-        aria-label="Scorri a destra"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </button>
-    </div>
-  ) : null;
-
-  // Visual indicator for scroll progress
-  const scrollIndicator = (
-    <div className="hidden sm:flex justify-center mt-1">
-      <div className="h-1 w-16 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-        <div 
-          className="h-full bg-primary transition-all duration-300"
-          style={{ 
-            width: api ? `${Math.min(100, (api.scrollProgress() || 0) * 100)}%` : "0%" 
-          }}
-        />
-      </div>
-    </div>
-  );
-
   return (
     <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 pb-2 shadow-sm">
       <div className="relative px-2 w-full max-w-md mx-auto">
@@ -139,13 +100,43 @@ const CategoryFilter = ({
             ))}
           </CarouselContent>
           
-          {/* Render buttons from prepared variables */}
-          {prevButton}
-          {nextButton}
+          {/* Show navigation buttons only when scrolling is possible */}
+          {canScrollPrev && (
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
+              <button 
+                onClick={() => api?.scrollPrev()} 
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-md dark:bg-gray-800/80"
+                aria-label="Scorri a sinistra"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          
+          {canScrollNext && (
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10">
+              <button 
+                onClick={() => api?.scrollNext()} 
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-md dark:bg-gray-800/80"
+                aria-label="Scorri a destra"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </Carousel>
         
         {/* Visual indicator for horizontal scrolling */}
-        {scrollIndicator}
+        <div className="hidden sm:flex justify-center mt-1">
+          <div className="h-1 w-16 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+            <div 
+              className="h-full bg-primary transition-all duration-300"
+              style={{ 
+                width: api ? `${Math.min(100, (api.scrollProgress() || 0) * 100)}%` : "0%" 
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

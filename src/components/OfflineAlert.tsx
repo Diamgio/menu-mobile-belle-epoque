@@ -4,7 +4,6 @@ import { AlertCircle, Wifi, WifiOff } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const OfflineAlert = () => {
-  // Always initialize state variables at the top level
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
@@ -22,23 +21,19 @@ const OfflineAlert = () => {
     };
   }, []);
 
-  // Prepare content based on state instead of early return
-  let content = null;
-  
-  if (!isOnline) {
-    content = (
-      <Alert variant="destructive" className="fixed bottom-16 left-0 right-0 mx-4 z-50">
-        <WifiOff className="h-4 w-4" />
-        <AlertTitle>Connessione assente</AlertTitle>
-        <AlertDescription>
-          Sei in modalità offline. Alcune funzionalità potrebbero non essere disponibili.
-        </AlertDescription>
-      </Alert>
-    );
+  if (isOnline) {
+    return null;
   }
 
-  // Always return something, even if it's null
-  return content;
+  return (
+    <Alert variant="destructive" className="fixed bottom-16 left-0 right-0 mx-4 z-50">
+      <WifiOff className="h-4 w-4" />
+      <AlertTitle>Connessione assente</AlertTitle>
+      <AlertDescription>
+        Sei in modalità offline. Alcune funzionalità potrebbero non essere disponibili.
+      </AlertDescription>
+    </Alert>
+  );
 };
 
 export default OfflineAlert;
