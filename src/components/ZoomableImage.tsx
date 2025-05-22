@@ -24,6 +24,7 @@ const ZoomableImage = ({
   showLoadingPlaceholder = true,
   itemIndex = 0,
 }: ZoomableImageProps) => {
+  // ALWAYS call all hooks at the top level unconditionally
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageType, setImageType] = useState<string | null>(null);
@@ -32,14 +33,14 @@ const ZoomableImage = ({
   // Always call the hook unconditionally at the top level
   const gallery = useGallery();
   
+  // Convert src to array if it's a string for unified handling
+  const imageSources = Array.isArray(src) ? src : [src];
+
   // Check if gallery functionality is available after component mounts
   useEffect(() => {
     setIsGalleryEnabled(!!gallery && typeof gallery.openGallery === 'function');
   }, [gallery]);
   
-  // Convert src to array if it's a string for unified handling
-  const imageSources = Array.isArray(src) ? src : [src];
-
   // Determine if the image is a placeholder or SVG
   useEffect(() => {
     if (imageSources[0]) {
@@ -63,11 +64,15 @@ const ZoomableImage = ({
   };
 
   const handleImageClick = () => {
-    // Only try to open the gallery if it's enabled
-    if (isGalleryEnabled && gallery) {
-      // The MenuPage will inject the allItems array and this item's index using context
-      const menuItems = window.__menuContext?.items || [];
-      gallery.openGallery(menuItems, itemIndex);
+    // Only try to open the gallery if it's enabled and the gallery object exists
+    if (isGalleryEnabled && gallery && typeof gallery.openGallery === 'function') {
+      try {
+        // The MenuPage will inject the allItems array and this item's index using context
+        const menuItems = window.__menuContext?.items || [];
+        gallery.openGallery(menuItems, itemIndex);
+      } catch (error) {
+        console.error("Error opening gallery:", error);
+      }
     }
   };
 

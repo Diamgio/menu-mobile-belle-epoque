@@ -25,13 +25,6 @@ declare global {
 const MenuPage = () => {
   console.log("MenuPage rendering");
   
-  // Initialize window.__menuContext to avoid undefined errors
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !window.__menuContext) {
-      window.__menuContext = { items: [] };
-    }
-  }, []);
-  
   // ALWAYS call all hooks at the top level unconditionally
   const { 
     menuItems, 
@@ -41,6 +34,19 @@ const MenuPage = () => {
     isLoading, 
     error 
   } = useMenuData();
+  
+  // Initialize window.__menuContext to avoid undefined errors
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.__menuContext = window.__menuContext || { items: [] };
+      
+      // Update the menu context if we have menu items
+      if (Array.isArray(menuItems) && menuItems.length > 0) {
+        window.__menuContext.items = menuItems;
+        console.log("Menu context updated with items:", menuItems.length);
+      }
+    }
+  }, [menuItems]);
   
   // Ensure menuItems is never undefined for the filter hook
   const safeMenuItems = Array.isArray(menuItems) ? menuItems : [];
@@ -65,12 +71,6 @@ const MenuPage = () => {
       hasError: !!error,
       filteredItemsCount: filteredItems.length,
     });
-    
-    // Make menu items available globally for the ZoomableImage component
-    if (typeof window !== 'undefined') {
-      window.__menuContext = { items: safeMenuItems };
-      console.log("Menu context updated globally with items count:", safeMenuItems.length);
-    }
     
     // Clear any render errors on remount
     setHasRenderError(false);
