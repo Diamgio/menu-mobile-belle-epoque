@@ -4,6 +4,8 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogHeader,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Carousel,
@@ -60,10 +62,10 @@ const Gallery = () => {
           <X className="h-6 w-6" />
         </button>
         
-        <div className="p-4 text-white">
+        <DialogHeader className="p-4 text-white">
           <DialogTitle className="text-xl font-bold mb-1">{items[currentItemIndex]?.name}</DialogTitle>
-          <p className="text-sm opacity-80">{items[currentItemIndex]?.description}</p>
-        </div>
+          <DialogDescription className="text-sm opacity-80">{items[currentItemIndex]?.description}</DialogDescription>
+        </DialogHeader>
         
         <Carousel 
           className="w-full" 
