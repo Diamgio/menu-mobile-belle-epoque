@@ -1,9 +1,9 @@
-
 import * as React from "react";
 import { useGallery } from "@/contexts/GalleryContext";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
   Carousel,
@@ -61,7 +61,7 @@ const Gallery = () => {
         </button>
         
         <div className="p-4 text-white">
-          <h3 className="text-xl font-bold mb-1">{items[currentItemIndex]?.name}</h3>
+          <DialogTitle className="text-xl font-bold mb-1">{items[currentItemIndex]?.name}</DialogTitle>
           <p className="text-sm opacity-80">{items[currentItemIndex]?.description}</p>
         </div>
         
