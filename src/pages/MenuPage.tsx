@@ -108,7 +108,7 @@ const MenuPage = () => {
       </div>
 
       <div className="sticky top-[3.25rem] z-20 bg-white dark:bg-gray-800 shadow-sm px-2 w-full">
-        <div className="flex items-center justify-between py-2 max-w-md mx-auto overflow-x-auto">
+        <div className="flex items-center justify-between py-2 max-w-md mx-auto">
           <CategoryFilter
             categories={categories}
             activeCategory={activeCategory}
